@@ -2,8 +2,8 @@
 
 Bienvenido a la base de conocimiento y documentación técnica del **Sistema de Gestión de Taller (SGT) de CarMotors**.
 
-- **Versión del documento maestro:** 1.2 — consolidada
-- **Fuente única de verdad:** [[00-Documento-Maestro-v1.2]] (secciones §1 a §12)
+- **Versión del documento maestro:** 1.3 — facturación normalizada y UML de dominio
+- **Fuente única de verdad:** [[00-Documento-Maestro-v1.3]] (secciones §1 a §14)
 - **Stack:** Java 17 · Maven · MySQL 8 · JDBC · Aplicación de Consola
 - **Repositorio:** [julio7879/Proyecto-Java-Grupo4](https://github.com/julio7879/Proyecto-Java-Grupo4)
 - **Tablero GitHub Projects:** [CarMotors Board #6](https://github.com/users/julio7879/projects/6)
@@ -66,6 +66,7 @@ Cada historia conserva sus criterios de aceptación **Dado / Cuando / Entonces**
 ## 🏛️ Arquitectura y Diseño Técnico
 
 - [[02-Arquitectura/Modelo-Relacional|Modelo Relacional & Diccionario de Datos]]
+- [[02-Arquitectura/Diagrama-Clases|Diagrama de Clases UML del dominio]]
 - [[02-Arquitectura/Patrones-Diseno|Patrones de Diseño (GoF + DAO)]]
 - [[02-Arquitectura/Principios-SOLID|Principios SOLID aplicados]]
 - [[02-Arquitectura/Transacciones-JDBC|Manejo de Transacciones JDBC & Concurrencia]]

@@ -3,7 +3,7 @@
 ## Sistema de Gestión de Taller (SGT)
 
 **Documento maestro del proyecto**  
-**Versión:** 1.2 — consolidada  
+**Versión:** 1.3 — facturación normalizada y UML de dominio  
 **Fecha de consolidación:** 13 de noviembre de 2026  
 **Tecnologías objetivo:** Java 17 · Maven · MySQL 8 · JDBC  
 **Interfaz:** aplicación de consola  
@@ -20,10 +20,11 @@
 | 1.0 | 12/11/2026 | Documento base con alcance, modelo de datos, requerimientos, reglas, historias y plan de trabajo. |
 | 1.1 | 12/11/2026 | Revisión de consistencia de estados, inventario, reservas, facturación, reportes, transacciones y patrones. |
 | 1.2 | 13/11/2026 | Consolidación del documento maestro, decisiones para un proyecto académico de cinco días, modelo lógico relacional y alineación con las sesiones de Java y la rúbrica compartida. |
+| 1.3 | 13/11/2026 | Separación de la facturación en cabecera, snapshot del cliente/vehículo y líneas de factura; actualización del modelo lógico, cardinalidades, reglas, historias, pruebas y diagrama de clases UML derivado. |
 
 ### Precedencia del documento
 
-1. Esta versión 1.2 sustituye como referencia de trabajo las versiones anteriores cuando exista una diferencia explícita.
+1. Esta versión 1.3 sustituye como referencia de trabajo las versiones anteriores cuando exista una diferencia explícita.
 2. El modelo lógico incluido aquí es la propuesta de referencia para el equipo. Todavía no es un modelo físico ni un script SQL.
 3. No se recibió el SQL base mencionado en la revisión anterior ni el enunciado académico completo. Por tanto, no se afirma que este diseño ya haya sido contrastado con esos materiales.
 4. Las decisiones que dependen del profesor se mantienen visibles en la sección **Decisiones académicas por confirmar**.
@@ -134,6 +135,10 @@ erDiagram
     ORDEN_SERVICIO_DETALLE ||--o{ DETALLE_REPUESTOS : reserva
     REPUESTOS ||--o{ DETALLE_REPUESTOS : asignado_a
     ORDENES_SERVICIO ||--o| FACTURAS : genera
+    FACTURAS ||--|| FACTURA_SNAPSHOT : conserva
+    FACTURAS ||--|{ FACTURA_DETALLES : desglosa
+    ORDEN_SERVICIO_DETALLE ||--o{ FACTURA_DETALLES : origina
+    DETALLE_REPUESTOS o|--o| FACTURA_DETALLES : respalda
 
     CLIENTES {
         int id PK
@@ -260,6 +265,16 @@ erDiagram
         string numero_factura UK
         int orden_id FK, UK
         datetime fecha_emision
+        decimal total_repuestos
+        decimal total_mano_obra
+        decimal subtotal
+        decimal tasa_iva
+        decimal impuestos
+        decimal total_final
+        boolean archivo_generado
+    }
+    FACTURA_SNAPSHOT {
+        int factura_id PK, FK
         string cliente_nombre_snapshot
         string cliente_documento_snapshot
         string cliente_telefono_snapshot
@@ -267,12 +282,17 @@ erDiagram
         string vehiculo_placa_snapshot
         string vehiculo_marca_snapshot
         string vehiculo_modelo_snapshot
-        decimal total_repuestos
-        decimal total_mano_obra
-        decimal tasa_iva
-        decimal impuestos
-        decimal total_final
-        boolean archivo_generado
+    }
+    FACTURA_DETALLES {
+        int id PK
+        int factura_id FK
+        int orden_detalle_id FK
+        int repuesto_id
+        string tipo_concepto
+        string descripcion_snapshot
+        int cantidad
+        decimal precio_unitario
+        decimal subtotal
     }
 ```
 
@@ -284,6 +304,11 @@ erDiagram
 - `PROVEEDOR_REPUESTOS` resuelve la relación M:N entre proveedores y repuestos. La clave primaria compuesta evita repetir el mismo par.
 - `LOTES` referencia el par `(proveedor_id, repuesto_id)` de `PROVEEDOR_REPUESTOS`. Así, cada lote pertenece a un proveedor que figura en el catálogo del repuesto.
 - `FACTURAS.orden_id` es FK y UK: una orden puede tener cero o una factura, y una factura pertenece a una única orden.
+- `FACTURAS` se separa de sus datos históricos y sus conceptos cobrados: `FACTURA_SNAPSHOT` conserva una copia de cliente/vehículo y `FACTURA_DETALLES` conserva cada concepto facturado.
+- `FACTURA_SNAPSHOT.factura_id` es PK y FK: cada factura debe tener exactamente un snapshot y cada snapshot pertenece a una sola factura.
+- `FACTURA_DETALLES.factura_id` es FK: cada factura debe tener uno o más conceptos facturados. El mínimo de una línea se valida en el servicio durante la transacción.
+- Cada `FACTURA_DETALLES` se origina en una `ORDEN_SERVICIO_DETALLE`. Para `tipo_concepto = REPUESTO`, `repuesto_id` es obligatorio y, junto con `orden_detalle_id`, referencia la asignación correspondiente de `DETALLE_REPUESTOS`; para `MANO_OBRA`, `repuesto_id` es `NULL`.
+- `DETALLE_REPUESTOS` puede tener cero o una línea de factura mientras la orden no se haya facturado; una vez facturada, cada asignación reservada se copia como concepto de repuesto.
 - `Cancelada` forma parte del catálogo de estados y de las transiciones permitidas.
 
 ## 2.2 Diccionario lógico de entidades
@@ -309,7 +334,20 @@ Los nombres y atributos siguientes definen el diseño lógico. Los tipos concret
 | `lotes` | `id` PK; `codigo_lote` UK; FK compuesta (`proveedor_id`, `repuesto_id`) | fecha_ingreso, fecha_caducidad, cantidad_inicial, cantidad_actual | Existencias físicas restantes por ingreso y proveedor. `cantidad_actual` incluye unidades reservadas hasta que se consumen. |
 | `evaluaciones_proveedor` | `id` PK; `proveedor_id` FK | fecha, calidad, puntualidad, comentario | Historial de evaluaciones de proveedores. |
 | `detalle_repuestos` | PK compuesta (`detalle_id`, `repuesto_id`); ambas FK | cantidad_asignada, nombre_repuesto_snapshot, precio_unitario_venta | Repuestos asignados a una línea, cantidad reservada y precio/nombre histórico. Al completar la orden, `cantidad_asignada` se considera consumida. |
-| `facturas` | `id` PK; `numero_factura` UK; `orden_id` FK y UK | fecha_emision, snapshots de cliente y vehículo, totales, tasa_iva, impuestos, total_final, archivo_generado | Cabecera inmutable de la factura interna y estado de generación del TXT. |
+| `facturas` | `id` PK; `numero_factura` UK; `orden_id` FK y UK | fecha_emision, total_repuestos, total_mano_obra, subtotal, tasa_iva, impuestos, total_final, archivo_generado | Cabecera financiera de la factura y estado de generación del TXT. No contiene snapshots ni líneas de conceptos. |
+| `factura_snapshot` | `factura_id` PK y FK | cliente_nombre_snapshot, cliente_documento_snapshot, cliente_telefono_snapshot, cliente_email_snapshot, vehiculo_placa_snapshot, vehiculo_marca_snapshot, vehiculo_modelo_snapshot | Copia histórica de los datos del cliente y del vehículo en el momento de emitir la factura. Relación obligatoria 1:1 con `facturas`. |
+| `factura_detalles` | `id` PK; `factura_id` FK; `orden_detalle_id` FK; FK compuesta opcional (`orden_detalle_id`, `repuesto_id`) hacia `detalle_repuestos` | tipo_concepto, descripcion_snapshot, cantidad, precio_unitario, subtotal | Una fila por cada concepto cobrado: mano de obra o repuesto. La descripción, cantidad y precio quedan congelados al facturar. |
+
+### Reglas de integridad específicas de facturación
+
+- `facturas.orden_id` es único: no puede existir más de una factura por orden.
+- Cada factura debe tener exactamente un registro en `factura_snapshot`. La relación se implementa con `factura_snapshot.factura_id` como PK y FK.
+- Cada factura debe tener uno o más registros en `factura_detalles`. El mínimo de una fila no lo garantiza una FK y se valida en la capa de servicio antes de confirmar la transacción.
+- `factura_detalles.tipo_concepto` admite `MANO_OBRA` o `REPUESTO`.
+- Para `MANO_OBRA`, `repuesto_id` debe ser `NULL`, `cantidad` será 1 y `precio_unitario` corresponderá al costo de mano de obra de la línea de servicio.
+- Para `REPUESTO`, `repuesto_id` debe tener valor y, junto con `orden_detalle_id`, debe identificar una asignación existente en `detalle_repuestos`. La combinación se protege mediante una FK compuesta en el modelo físico o, si la implementación del motor requiere una alternativa, mediante validación transaccional documentada.
+- Una factura se construye copiando los valores históricos desde la orden completada: cada línea de servicio genera un concepto de mano de obra y cada repuesto asignado genera un concepto de repuesto.
+- Los conceptos de `factura_detalles` son una copia histórica independiente de los datos actuales del catálogo. No se modifican después de confirmar la factura.
 
 ## 2.3 Catálogos de consulta
 
@@ -332,23 +370,27 @@ Condiciones del catálogo `servicio_tipos`:
 
 | Relación | Cardinalidad | Implementación |
 |---|---|---|
-| Cliente — Vehículos | 1:N | `vehiculos.cliente_id` |
-| Vehículo — Órdenes | 1:N | `ordenes_servicio.vehiculo_id` |
-| Estado — Órdenes | 1:N | `ordenes_servicio.estado_id` |
-| Orden — Líneas de servicio | 1:N | `orden_servicio_detalle.orden_id` |
-| Tipo de servicio — Líneas | 1:N | `orden_servicio_detalle.servicio_tipo_id` |
+| Cliente — Vehículos | 1:0..N | `vehiculos.cliente_id` |
+| Vehículo — Órdenes | 1:0..N | `ordenes_servicio.vehiculo_id` |
+| Estado — Órdenes | 1:0..N | `ordenes_servicio.estado_id` |
+| Orden — Líneas de servicio | 1:1..N | `orden_servicio_detalle.orden_id`; mínimo de una línea validado en servicio |
+| Tipo de servicio — Líneas | 1:0..N | `orden_servicio_detalle.servicio_tipo_id` |
 | Línea — Técnicos | M:N | `detalle_tecnicos` |
-| Especialidad — Técnicos | 1:N | `tecnicos.especialidad_id` |
-| Especialidad — Tipos de servicio | 1:N | `servicio_tipos.especialidad_id` |
-| Tipo de mantenimiento — Tipos de servicio | 1:N | `servicio_tipos.mantenimiento_tipo_id` |
+| Especialidad — Técnicos | 1:0..N | `tecnicos.especialidad_id` |
+| Especialidad — Tipos de servicio | 1:0..N | `servicio_tipos.especialidad_id` |
+| Tipo de mantenimiento — Tipos de servicio | 1:0..N | `servicio_tipos.mantenimiento_tipo_id` |
 | Línea — Repuestos | M:N | `detalle_repuestos` |
-| Tipo de repuesto — Repuestos | 1:N | `repuestos.repuesto_tipo_id` |
+| Tipo de repuesto — Repuestos | 1:0..N | `repuestos.repuesto_tipo_id` |
 | Proveedor — Repuestos | M:N | `proveedor_repuestos` |
-| Relación proveedor-repuesto — Lotes | 1:N | FK compuesta en `lotes` |
-| Proveedor — Evaluaciones | 1:N | `evaluaciones_proveedor.proveedor_id` |
+| Relación proveedor-repuesto — Lotes | 1:0..N | FK compuesta en `lotes` |
+| Proveedor — Evaluaciones | 1:0..N | `evaluaciones_proveedor.proveedor_id` |
 | Orden — Factura | 1:0..1 | `facturas.orden_id` único |
+| Factura — Snapshot | 1:1 | `factura_snapshot.factura_id` es PK y FK |
+| Factura — Detalles de factura | 1:1..N | `factura_detalles.factura_id`; mínimo de una línea validado en servicio |
+| Línea de servicio — Detalles de factura | 1:0..N | `factura_detalles.orden_detalle_id`; una línea puede originar mano de obra y varios repuestos |
+| Detalle de repuesto — Detalle de factura | 1:0..1 | FK compuesta opcional (`orden_detalle_id`, `repuesto_id`); la asignación se copia una sola vez al facturar |
 
-La regla de que una orden debe tener al menos una línea se valida en el servicio que crea la orden y dentro de la transacción que guarda cabecera y líneas. Una FK por sí sola no garantiza el mínimo de una línea.
+Las cardinalidades `0..N` expresan que la relación puede no existir todavía. Por ejemplo, un cliente puede registrarse sin vehículos, un proveedor puede no tener evaluaciones y una orden Completada puede no tener factura hasta que el administrador la genere. En cambio, una orden debe tener `1..N` líneas y una factura emitida debe tener `1..N` conceptos. Estas cantidades mínimas se validan en la capa de servicio y dentro de las transacciones de creación correspondientes.
 
 ## 2.5 Fuente de verdad y cálculos de inventario
 
@@ -384,18 +426,43 @@ Para mantener el alcance de un proyecto académico de cinco días, **no se incor
 
 Esta limitación es deliberada y debe mantenerse consistente en los RF: la trazabilidad de RF-03 es por lote (origen y saldo), no por vínculo histórico lote-orden. Si el profesor exige auditoría del lote consumido por cada servicio, se deberá ampliar el modelo con una tabla intermedia de consumo por lote y actualizar RF-03, RF-13, RF-27, las historias y las pruebas. No se debe agregar esa tabla silenciosamente durante la implementación.
 
-## 2.7 Factura histórica y reimpresión
+## 2.7 Estructura histórica de la factura y reimpresión
 
-La factura debe conservar los datos relevantes tal como estaban al facturar:
+La facturación se separa en tres tablas para que cada una tenga una responsabilidad clara y `facturas` no acumule todos los snapshots y conceptos cobrados:
 
-- `facturas` almacena snapshots del nombre, documento, teléfono y email del cliente; placa, marca y modelo del vehículo; fecha, tasa aplicada y totales.
-- `orden_servicio_detalle` almacena `nombre_servicio_snapshot` y `costo_mano_obra`.
-- `detalle_repuestos` almacena `nombre_repuesto_snapshot`, `cantidad_asignada` y `precio_unitario_venta`.
-- Una vez que la orden llega a Completado, sus líneas, asignaciones, snapshots, horas y costos no se pueden modificar ni eliminar. La factura se reconstruye desde esos datos históricos inmutables. Al crearla, `archivo_generado` inicia en `false`; después de escribir correctamente el TXT, el sistema lo actualiza a `true`. Si falla la escritura, permanece en `false` y la opción de reintento vuelve a generar el archivo desde los datos históricos. Si el archivo se escribió pero falló la actualización de la marca, reescribir el mismo nombre de archivo debe ser idempotente.
+1. **`facturas` — cabecera:** contiene el número, orden asociada, fecha de emisión, totales, tasa de IVA y marca de generación del archivo.
+2. **`factura_snapshot` — datos históricos del cliente y vehículo:** contiene una copia de los datos de identificación y contacto del cliente y de la identificación del vehículo tal como estaban al facturar. Su PK también es FK a `facturas`, por lo que la relación es 1:1.
+3. **`factura_detalles` — conceptos cobrados:** contiene una fila por concepto facturado. Un concepto es cada elemento individual que se cobra en la factura, no una tabla adicional de catálogo. Los tipos admitidos son `MANO_OBRA` y `REPUESTO`.
 
-**Decisión de simplicidad:** no se agregan tablas separadas `factura_lineas` ni `factura_linea_repuestos` en esta versión. La cabecera de factura conserva los snapshots de cliente y vehículo; el detalle histórico reside en las líneas y asignaciones bloqueadas de la orden. Esto evita duplicar estructuras y es suficiente mientras las órdenes completadas permanezcan inmutables.
+### Contenido de `factura_detalles`
 
-La restricción `UNIQUE` en `facturas.orden_id` evita crear dos facturas para una misma orden. El TXT se genera después del `COMMIT`, con nombre `factura_<numero_factura>.txt`, en la carpeta de salida definida para la aplicación y usando codificación UTF-8. Si falla la escritura del archivo, la factura sigue registrada y el TXT puede reconstruirse desde los snapshots persistidos. La marca `archivo_generado` se actualiza después de confirmar la escritura.
+| Campo | Uso |
+|---|---|
+| `id` (PK) | Identificador del concepto facturado. |
+| `factura_id` (FK) | Factura a la que pertenece. |
+| `orden_detalle_id` (FK) | Línea de servicio de la orden que origina el concepto. |
+| `repuesto_id` (parte de FK compuesta, nullable) | Repuesto relacionado; es nulo para mano de obra y obligatorio para un concepto de repuesto. Junto con `orden_detalle_id` identifica la asignación de `detalle_repuestos`; no se crea una FK directa adicional a `repuestos`. |
+| `tipo_concepto` | `MANO_OBRA` o `REPUESTO`. |
+| `descripcion_snapshot` | Texto congelado que se imprime en la factura, por ejemplo `Mano de obra - Cambio de aceite` o `Filtro de aceite estándar`. |
+| `cantidad` | Para mano de obra se registra 1; para repuestos, la cantidad asignada a la línea. |
+| `precio_unitario` | Importe histórico por unidad. Para mano de obra es el costo de mano de obra de la línea; para repuesto es `precio_unitario_venta`. |
+| `subtotal` | `cantidad × precio_unitario`, calculado y guardado con dos decimales. |
+
+Cada línea de servicio de la orden produce un concepto de mano de obra. Además, cada repuesto asignado en esa línea produce un concepto de repuesto. Por eso una factura contiene uno o varios registros en `factura_detalles`, incluso cuando una línea no utiliza repuestos: en ese caso se factura únicamente la mano de obra.
+
+La FK compuesta opcional `(orden_detalle_id, repuesto_id)` de `factura_detalles` hacia la PK compuesta de `detalle_repuestos` asegura que un concepto de tipo `REPUESTO` corresponda a un repuesto realmente asignado a esa línea. `repuesto_id` no necesita una FK directa adicional a `repuestos`, porque `detalle_repuestos.repuesto_id` ya referencia esa entidad. En los conceptos `MANO_OBRA`, `repuesto_id` queda `NULL`; el servicio valida que los campos coincidan con el tipo de concepto.
+
+### Inmutabilidad y generación del TXT
+
+- Al facturar, se copian los datos actuales del cliente y vehículo a `factura_snapshot`.
+- Se copian los conceptos de la orden a `factura_detalles`, usando los nombres y precios históricos de `orden_servicio_detalle` y `detalle_repuestos`. La factura queda autosuficiente para su consulta y reimpresión; no depende de los nombres ni precios actuales de los catálogos.
+- La cabecera, el snapshot, todos los detalles y el cambio de estado de la orden a `Facturado` se insertan/actualizan en una única transacción JDBC. Si falla cualquier operación de base de datos, se hace `ROLLBACK`.
+- La factura debe contener exactamente un snapshot y al menos un detalle. Estas condiciones se comprueban antes del `COMMIT`.
+- `archivo_generado` inicia en `false`. Después del `COMMIT`, el sistema genera `factura_<numero_factura>.txt` en UTF-8. Si la escritura termina correctamente, actualiza `archivo_generado` a `true`.
+- Si falla la generación del archivo, la factura y sus datos históricos permanecen registrados. El administrador puede reintentar la generación desde `facturas`, `factura_snapshot` y `factura_detalles`, sin volver a facturar la orden.
+- Si el archivo se escribió pero falló la actualización de la marca, reescribir el mismo nombre de archivo debe ser idempotente.
+
+Los snapshots de `orden_servicio_detalle` y `detalle_repuestos` se mantienen porque protegen también el historial de la orden y los reportes previos a facturar. `factura_snapshot` y `factura_detalles` son copias deliberadas del momento de emisión: hacen que el comprobante no dependa de que el registro operativo original permanezca intacto para siempre.
 
 ## 2.8 Moneda, impuestos y precisión
 
@@ -406,6 +473,192 @@ La restricción `UNIQUE` en `facturas.orden_id` evita crear dos facturas para un
 - Tasa del ejercicio: **19 % fijo como supuesto académico**. No se presenta como una conclusión tributaria para todos los servicios ni como requisito fiscal de una factura real.
 - La tasa aplicada se guarda en la factura para que una reimpresión no cambie si el código evoluciona.
 - No se calcula costo contable de inventario ni utilidad. RF-27 representa el valor comercial de los repuestos consumidos al precio de venta histórico.
+
+
+## 2.9 Diagrama de clases UML derivado del modelo lógico
+
+El siguiente diagrama representa las **clases del dominio persistente** a partir de las 20 tablas del modelo lógico actualizado. Las claves foráneas se expresan como asociaciones UML; no se repiten como atributos de clase cuando la relación ya las representa. Las tablas intermedias M:N se modelan como clases de asociación (`DetalleTecnico`, `DetalleRepuesto` y `ProveedorRepuesto`) porque contienen atributos propios.
+
+El diagrama se concentra en atributos y relaciones. No inventa métodos de negocio: las operaciones de aplicación se implementarán en las clases de servicio, controladores y DAOs, y deberán diseñarse durante la arquitectura Java. `TipoConceptoFactura` se representa como enumeración porque restringe los tipos de fila de factura, aunque no constituye una tabla independiente.
+
+```mermaid
+classDiagram
+    direction LR
+    class Cliente {
+      +int id
+      +String nombre
+      +String documentoIdentidad
+      +String telefono
+      +String email
+      +boolean activo
+    }
+    class Vehiculo {
+      +int id
+      +String placa
+      +String marca
+      +String modelo
+    }
+    class ServicioEstado {
+      +int id
+      +String nombre
+    }
+    class OrdenServicio {
+      +int id
+      +LocalDateTime fechaRecepcion
+      +LocalDateTime fechaCompletado
+      +LocalDateTime fechaEntrega
+      +LocalDateTime fechaCancelacion
+      +String descripcionProblema
+    }
+    class OrdenServicioDetalle {
+      +int id
+      +String nombreServicioSnapshot
+      +BigDecimal costoManoObra
+      +String observaciones
+    }
+    class ServicioTipo {
+      +int id
+      +String nombre
+      +BigDecimal precioManoObraBase
+      +Integer intervaloMeses
+    }
+    class MantenimientoTipo {
+      +int id
+      +String nombre
+    }
+    class Especialidad {
+      +int id
+      +String nombre
+    }
+    class Tecnico {
+      +int id
+      +String nombre
+      +String documentoIdentidad
+      +String telefono
+      +boolean activo
+    }
+    class DetalleTecnico {
+      +BigDecimal horasTrabajadas
+    }
+    class RepuestoTipo {
+      +int id
+      +String nombre
+    }
+    class Repuesto {
+      +int id
+      +String nombre
+      +String marca
+      +BigDecimal precioVenta
+      +int cantidadReservada
+      +int stockMinimo
+      +boolean activo
+    }
+    class Proveedor {
+      +int id
+      +String nombre
+      +String telefono
+      +String email
+      +String direccion
+      +boolean activo
+    }
+    class ProveedorRepuesto {
+      +BigDecimal costo
+      +int tiempoEntregaDias
+      +boolean esHabitual
+    }
+    class Lote {
+      +int id
+      +String codigoLote
+      +LocalDate fechaIngreso
+      +LocalDate fechaCaducidad
+      +int cantidadInicial
+      +int cantidadActual
+    }
+    class EvaluacionProveedor {
+      +int id
+      +LocalDate fecha
+      +int calidad
+      +int puntualidad
+      +String comentario
+    }
+    class DetalleRepuesto {
+      +int cantidadAsignada
+      +String nombreRepuestoSnapshot
+      +BigDecimal precioUnitarioVenta
+    }
+    class Factura {
+      +int id
+      +String numeroFactura
+      +LocalDateTime fechaEmision
+      +BigDecimal totalRepuestos
+      +BigDecimal totalManoObra
+      +BigDecimal subtotal
+      +BigDecimal tasaIva
+      +BigDecimal impuestos
+      +BigDecimal totalFinal
+      +boolean archivoGenerado
+    }
+    class FacturaSnapshot {
+      +String clienteNombreSnapshot
+      +String clienteDocumentoSnapshot
+      +String clienteTelefonoSnapshot
+      +String clienteEmailSnapshot
+      +String vehiculoPlacaSnapshot
+      +String vehiculoMarcaSnapshot
+      +String vehiculoModeloSnapshot
+    }
+    class FacturaDetalle {
+      +int id
+      +TipoConceptoFactura tipoConcepto
+      +String descripcionSnapshot
+      +int cantidad
+      +BigDecimal precioUnitario
+      +BigDecimal subtotal
+    }
+    class TipoConceptoFactura {
+      <<enumeration>>
+      MANO_OBRA
+      REPUESTO
+    }
+
+    Cliente "1" --> "0..*" Vehiculo : posee
+    Vehiculo "1" --> "0..*" OrdenServicio : registra
+    ServicioEstado "1" --> "0..*" OrdenServicio : clasifica
+    OrdenServicio "1" *-- "1..*" OrdenServicioDetalle : contiene
+    ServicioTipo "1" --> "0..*" OrdenServicioDetalle : identifica
+    MantenimientoTipo "1" --> "0..*" ServicioTipo : clasifica
+    Especialidad "1" --> "0..*" ServicioTipo : requiere
+    Especialidad "1" --> "0..*" Tecnico : habilita
+    OrdenServicioDetalle "1" --> "0..*" DetalleTecnico : asignaciones
+    Tecnico "1" --> "0..*" DetalleTecnico : participa
+    RepuestoTipo "1" --> "0..*" Repuesto : clasifica
+    OrdenServicioDetalle "1" --> "0..*" DetalleRepuesto : reserva
+    Repuesto "1" --> "0..*" DetalleRepuesto : asignado
+    Proveedor "1" --> "0..*" ProveedorRepuesto : ofrece
+    Repuesto "1" --> "0..*" ProveedorRepuesto : esOfrecido
+    ProveedorRepuesto "1" --> "0..*" Lote : abastece
+    Proveedor "1" --> "0..*" EvaluacionProveedor : recibe
+    OrdenServicio "1" --> "0..1" Factura : genera
+    Factura "1" *-- "1" FacturaSnapshot : conserva
+    Factura "1" *-- "1..*" FacturaDetalle : desglosa
+    OrdenServicioDetalle "1" --> "0..*" FacturaDetalle : origina
+    DetalleRepuesto "0..1" --> "0..1" FacturaDetalle : respaldaConcepto
+    FacturaDetalle ..> TipoConceptoFactura : clasifica
+```
+
+### Criterios de lectura del UML
+
+- Una `Factura` compone exactamente un `FacturaSnapshot` y uno o varios `FacturaDetalle`. La composición representa que esos registros históricos nacen con la factura y no tienen sentido independiente.
+- Una `FacturaDetalle` siempre procede de una `OrdenServicioDetalle`. Puede ser de mano de obra o de repuesto; en el segundo caso debe corresponder a una asignación concreta de `DetalleRepuesto`.
+- `DetalleTecnico`, `DetalleRepuesto` y `ProveedorRepuesto` son clases de asociación: materializan relaciones M:N y almacenan atributos que pertenecen a la relación, no solo a una de las entidades relacionadas.
+- `Lote` se relaciona con `ProveedorRepuesto`, no libremente con cualquier combinación proveedor/repuesto. Así se conserva la regla de que el proveedor debe ofrecer el repuesto que ingresa.
+- El diagrama UML no sustituye el diagrama lógico: el primero modela clases y asociaciones del dominio; el segundo especifica tablas, claves y restricciones de persistencia.
+
+### Recursos editables y visuales
+
+- Modelo lógico editable (Mermaid): [`.mmd`](CarMotors_Modelo_Logico_v1.2.mmd), [PNG](CarMotors_Modelo_Logico_v1.2.png) y [SVG](CarMotors_Modelo_Logico_v1.2.svg).
+- Diagrama de clases UML editable (Mermaid): [`.mmd`](CarMotors_Diagrama_Clases_UML_v1.0.mmd), [PNG](CarMotors_Diagrama_Clases_UML_v1.0.png) y [SVG](CarMotors_Diagrama_Clases_UML_v1.0.svg).
+- Los archivos `.dot` contienen la fuente Graphviz utilizada para generar los PNG y SVG.
 
 ---
 
@@ -461,9 +714,9 @@ Se conserva la posibilidad de agregar una línea a una orden En Proceso porque a
 
 | ID | Requerimiento y alcance | Criterios de aceptación verificables | Prioridad |
 |---|---|---|---|
-| RF-22 | Generar una factura interna para una orden Completada, guardarla en MySQL y producir `factura_<numero_factura>.txt` en la carpeta de salida configurada para la aplicación. | Solo factura órdenes Completadas sin factura previa. Registra snapshot de cabecera y cambia la orden a Facturado en una transacción. Después del `COMMIT` genera el TXT en UTF-8 y actualiza `archivo_generado`. Si falla el archivo, la factura permanece registrada y puede reintentarse. | Alta |
-| RF-23 | Incluir número, fecha, datos históricos del cliente y vehículo y el desglose de cada línea: servicios, repuestos, cantidades, precios, subtotales y mano de obra; al final, subtotales, impuestos y total. | Los valores se calculan con RN-12 y se guardan con dos decimales. La reimpresión utiliza los snapshots, aunque los catálogos o datos del cliente cambien después. | Alta |
-| RF-24 | Consultar o reimprimir una factura existente. | Reimprime el mismo contenido desde los snapshots y datos históricos bloqueados. No crea otra factura ni cambia el estado de la orden. Si el archivo no existe o no se pudo generar, permite reconstruirlo desde la información guardada. | Media |
+| RF-22 | Generar una factura interna para una orden Completada, guardarla en MySQL y producir `factura_<numero_factura>.txt` en la carpeta de salida configurada para la aplicación. | Solo factura órdenes Completadas sin factura previa. Registra `facturas`, un `factura_snapshot` y uno o más `factura_detalles`, y cambia la orden a Facturado en una transacción. Después del `COMMIT` genera el TXT en UTF-8 y actualiza `archivo_generado`. Si falla el archivo, la factura permanece registrada y puede reintentarse. | Alta |
+| RF-23 | Incluir número, fecha, datos históricos del cliente y vehículo y el desglose de cada línea mediante conceptos de mano de obra y repuestos, con descripción, cantidad, precio unitario y subtotal; al final, subtotal general, impuestos y total. | Los datos del cliente y vehículo se guardan en `factura_snapshot`; cada concepto se guarda como una fila en `factura_detalles`. Los valores se calculan con RN-12 y se guardan con dos decimales. La reimpresión utiliza exclusivamente los datos históricos de esas tablas, aunque los catálogos o datos operativos cambien después. | Alta |
+| RF-24 | Consultar o reimprimir una factura existente. | Reimprime el mismo contenido desde `facturas`, `factura_snapshot` y `factura_detalles`, sin consultar valores actuales del catálogo para reconstruir los conceptos. No crea otra factura ni cambia el estado de la orden. Si el archivo no existe o no se pudo generar, permite reconstruirlo desde la información guardada. | Media |
 | RF-25 | Generar un reporte de servicios más solicitados: cantidad de líneas e ingresos por tipo de servicio. | Filtra por fecha de finalización y cuenta órdenes Completadas, Facturadas o Entregadas. Los ingresos por línea son repuestos a precio de venta guardado más mano de obra, antes de impuestos. Ordena por cantidad descendente. | Alta |
 | RF-26 | Generar un reporte de productividad por técnico: líneas completadas, horas trabajadas e ingresos de mano de obra atribuibles. | Cuenta órdenes Completadas o posteriores. Distribuye la mano de obra de cada línea entre sus técnicos en proporción a las horas registradas. Si la línea no tiene horas, el valor queda como mano de obra sin distribuir. Incluye técnicos históricos que tengan trabajo en el periodo y técnicos activos sin trabajo con cero. | Alta |
 | RF-27 | Generar un reporte de consumo de repuestos por repuesto y tipo de servicio, en un rango de fechas. | Cuenta cantidades asignadas en órdenes Completadas o posteriores, porque bajo el supuesto del proyecto esa cantidad se consume íntegramente al completar. No cuenta reservas de órdenes Pendientes o En Proceso. El valor se calcula con el precio de venta histórico y representa valor comercial, no costo de adquisición ni utilidad. Ordena por valor descendente. | Alta |
@@ -501,10 +754,10 @@ Las reglas de negocio se implementan en la capa `service`. La vista puede valida
 | RN-06 | Los estados avanzan un paso a la vez: Pendiente → En Proceso → Completado → Facturado → Entregado. Cancelada es una excepción permitida únicamente desde Pendiente o En Proceso. No se permiten saltos ni retrocesos. |
 | RN-07 | Para pasar una orden a En Proceso, cada línea debe tener al menos un técnico activo asignado. Si el único técnico asignado a una línea se desactiva antes de iniciar la orden, debe asignarse un técnico activo de reemplazo. Si se agrega una línea a una orden En Proceso, debe quedar asignada a al menos un técnico activo antes de cerrar la operación de alta. Desactivar un técnico después de iniciada la orden no invalida retroactivamente la asignación. |
 | RN-08 | Cada línea debe tener costo de mano de obra mayor o igual a cero antes de completar. Al crear la línea se copia como valor inicial `precio_mano_obra_base` del tipo de servicio; el administrador puede ajustarlo antes de completar. Las horas del técnico se registran por separado y no determinan automáticamente ese precio. |
-| RN-09 | Solo se factura una orden Completada y una sola vez. La factura se guarda en la base de datos con sus snapshots y la orden pasa a Facturado en la misma transacción. |
+| RN-09 | Solo se factura una orden Completada y una sola vez. En una misma transacción se guarda una fila en `facturas`, exactamente una en `factura_snapshot`, una o más en `factura_detalles` y se cambia la orden a Facturado. Si falla cualquiera de estas operaciones, se revierte todo. |
 | RN-10 | Solo se entrega una orden Facturada. Al entregarla, se registra `fecha_entrega` y se cambia el estado a Entregado. |
 | RN-11 | El precio de venta del repuesto se copia en `precio_unitario_venta` al asignarlo. Los cambios posteriores en el catálogo no modifican órdenes ni facturas existentes. El nombre también queda guardado en `nombre_repuesto_snapshot`. |
-| RN-12 | `total_repuestos = SUM(cantidad_asignada × precio_unitario_venta)`; `total_mano_obra = SUM(costo_mano_obra)`; `base = total_repuestos + total_mano_obra`; `impuestos = base × 0.19`; `total_final = base + impuestos`. Se manejan montos con `BigDecimal`, dos decimales y `HALF_UP`. El 19 % es un supuesto académico fijo del proyecto, no una validación tributaria. |
+| RN-12 | `total_repuestos = SUM(subtotal)` de los conceptos `REPUESTO` en `factura_detalles`; `total_mano_obra = SUM(subtotal)` de los conceptos `MANO_OBRA`; `subtotal = total_repuestos + total_mano_obra`; `impuestos = subtotal × 0.19`; `total_final = subtotal + impuestos`. Cada línea se copia desde los valores históricos de la orden a `factura_detalles`. Se manejan montos con `BigDecimal`, dos decimales y `HALF_UP`. El 19 % es un supuesto académico fijo del proyecto, no una validación tributaria. |
 | RN-13 | Documento y email del cliente son únicos y obligatorios; la placa del vehículo es única. La placa se normaliza antes de validar y guardar. |
 | RN-14 | El código de lote es único. Si existe fecha de caducidad, debe ser posterior a la fecha de ingreso. El proveedor debe ofrecer el repuesto y estar activo al registrar el lote. Un lote vencido nunca se usa para nuevas reservas ni para consumo. |
 | RN-15 | El recordatorio se calcula por vehículo y tipo de servicio preventivo: fecha sugerida = `fecha_entrega` de la última orden Entregada que contiene ese tipo + `intervalo_meses`. Se informa si ya venció o si cae dentro de los próximos 30 días. Un servicio entregado más reciente del mismo tipo reemplaza la fecha anterior. |
@@ -523,7 +776,7 @@ Las reglas de negocio se implementan en la capa `service`. La vista puede valida
 | Nueva | Pendiente | Vehículo existente y activo; una o más líneas. | Se registra recepción y cabecera-detalle. |
 | Pendiente | En Proceso | Cada línea tiene al menos un técnico activo. | Comienza la ejecución. |
 | En Proceso | Completado | Cada línea tiene mano de obra definida y el stock operativo cubre las reservas. | Descuento FEFO, fecha de finalización y alerta de stock. |
-| Completado | Facturado | No existe factura previa. | Guarda factura y snapshots; genera TXT después del commit. |
+| Completado | Facturado | No existe factura previa. | Guarda cabecera, snapshot de cliente/vehículo y conceptos facturados en una transacción; genera el TXT después del commit. |
 | Facturado | Entregado | La orden tiene factura. | Registra fecha de entrega. |
 | Pendiente / En Proceso | Cancelada | Decisión del administrador. Se asume que no hubo consumo físico parcial. | Libera reservas, registra `fecha_cancelacion`; no descuenta inventario ni permite cambios posteriores. |
 
@@ -563,7 +816,7 @@ Los requerimientos no funcionales definen tecnologías, arquitectura, persistenc
 | RNF-05 | Toda la lógica de negocio definida en RN-01 a RN-22 se implementa en la capa `service`. |
 | RNF-06 | Un DAO por entidad o agregado, definido mediante interfaz e implementación JDBC. Incluye CRUD y consultas específicas necesarias. |
 | RNF-07 | Todas las consultas y actualizaciones parametrizables usan `PreparedStatement`. No se concatena entrada del usuario en sentencias SQL. |
-| RNF-08 | Las operaciones que modifican varias tablas —por ejemplo ingreso de lote, creación de orden, completar, cancelar y facturar— usan una transacción JDBC con `commit` y `rollback`. |
+| RNF-08 | Las operaciones que modifican varias tablas —por ejemplo ingreso de lote, creación de orden, completar, cancelar y facturar (cabecera, snapshot, conceptos y estado)— usan una transacción JDBC con `commit` y `rollback`. |
 | RNF-09 | Se implementan al menos cinco patrones, incluidos obligatoriamente Singleton y DAO. La sección 5.3 distingue los cinco patrones base de los dos opcionales propuestos. |
 | RNF-10 | Se aplican principios SOLID donde aporten claridad y se documentan ejemplos concretos en el README. |
 | RNF-11 | Se utilizan Lambdas y Stream API en procesamiento de colecciones para búsquedas, ordenamientos, agrupaciones o transformaciones de reportes. SQL se utiliza primero para reducir los datos recuperados. |
@@ -756,10 +1009,10 @@ Las historias se mantienen desde el punto de vista del administrador del taller.
 
 **Como** administrador, **quiero** generar un comprobante detallado e inmutable, **para** documentar los trabajos de una orden.
 
-- Dada una orden Completada con dos líneas, repuestos y mano de obra, cuando genero la factura, entonces se registra una factura única con snapshots, desglose, impuestos y total y la orden pasa a Facturado.
+- Dada una orden Completada con dos líneas, repuestos y mano de obra, cuando genero la factura, entonces se registra una cabecera en `facturas`, un `factura_snapshot`, uno o más `factura_detalles`, los totales y el cambio de la orden a Facturado en una sola transacción.
 - Dada una orden ya facturada, cuando intento facturarla de nuevo, entonces el sistema lo impide y ofrece reimprimir la existente.
-- Dado que cambió el precio de un repuesto, nombre de cliente o dato del vehículo después de facturar, cuando reimprimo, entonces el contenido histórico permanece igual.
-- Dado un fallo al escribir el TXT después del commit, cuando consulto la orden, entonces la factura permanece registrada y puedo reintentar la generación desde los snapshots.
+- Dado que cambió el precio de un repuesto, nombre de cliente o dato del vehículo después de facturar, cuando reimprimo, entonces el contenido histórico permanece igual porque se lee desde `factura_snapshot` y `factura_detalles`.
+- Dado un fallo al escribir el TXT después del commit, cuando consulto la orden, entonces la factura permanece registrada y puedo reintentar la generación desde `facturas`, `factura_snapshot` y `factura_detalles`.
 
 ### HU-13 — Reportes gerenciales (RF-25, RF-26, RF-27)
 
@@ -815,7 +1068,7 @@ Las historias se mantienen desde el punto de vista del administrador del taller.
 - Se implementan al menos cinco patrones, incluidos Singleton y DAO; Facade y Observer son opcionales salvo confirmación docente en sentido contrario.
 - Se utilizan Streams y Lambdas de forma justificada en procesamiento de colecciones.
 - `schema.sql` crea la base desde cero y `data.sql` contiene datos relacionados y suficientes para probar los escenarios.
-- El README incluye el diagrama E-R, instrucciones, arquitectura, patrones, SOLID, configuración y ejecución.
+- El README incluye el diagrama E-R, el diagrama de clases UML, instrucciones, arquitectura, patrones, SOLID, configuración y ejecución.
 - `.gitignore` existe desde el primer commit; se mantienen `main`, `develop` y `feature/*` y commits convencionales en inglés.
 - Una persona distinta del desarrollador puede clonar, configurar y ejecutar el proyecto siguiendo solo el README.
 - Los logs registran eventos y errores relevantes sin exponer credenciales.
@@ -835,6 +1088,8 @@ Las historias se mantienen desde el punto de vista del administrador del taller.
 | Transiciones | Saltar de Pendiente a Facturado. | Rechazo y estado sin cambios. |
 | Técnicos | Asignar un técnico de otra especialidad. | Advertencia y confirmación explícita. |
 | Factura | Intentar facturar dos veces la misma orden. | Una sola factura por orden. |
+| Integridad de factura | Intentar confirmar una factura sin snapshot o sin detalles. | La operación se rechaza o revierte; no queda una factura incompleta. |
+| Conceptos de factura | Facturar una línea con mano de obra y dos repuestos. | Se guarda un concepto MANO_OBRA y dos conceptos REPUESTO con cantidades, descripciones y precios históricos. |
 | Archivo | Fallar al generar el TXT después del commit. | La factura persiste y el TXT puede reintentarse. |
 | Snapshot | Cambiar nombre o precio de catálogo después de facturar. | La reimpresión no cambia. |
 | Reportes | Generar reporte para rango sin resultados. | Mensaje claro; no falla ni presenta datos ficticios. |
@@ -870,7 +1125,7 @@ Se conserva la propuesta de nueve ramas `feature/*`, ordenadas según las depend
 | 4 | `feature/gestion-inventario` | HU-01, HU-02 y HU-03: repuestos, lotes, reservas agregadas, alertas y consulta de trazabilidad de lote. | 3 |
 | 5 | `feature/gestion-tecnicos` | HU-16: técnicos, especialidades, activación y carga de trabajo. | 1 |
 | 6 | `feature/gestion-servicios` | HU-04 a HU-08: órdenes, líneas, técnicos, reservas, estados, cancelación y consumo FEFO. | 2, 4 y 5 |
-| 7 | `feature/facturacion` | HU-12: snapshots de factura, cálculos y generación/reimpresión TXT. | 6 |
+| 7 | `feature/facturacion` | HU-12: cabecera de factura, snapshot del cliente/vehículo, conceptos en detalles de factura, cálculos y generación/reimpresión TXT. | 6 |
 | 8 | `feature/reportes` | HU-11 y HU-13: recordatorios, servicios, productividad y consumo. | 6 y 7 |
 | 9 | `feature/documentacion` | README, diagrama E-R, diagrama de clases, diccionario de datos, pruebas y `data.sql` definitivo. | Todas |
 
@@ -922,6 +1177,8 @@ El enunciado disponible menciona una cantidad y calidad de datos, pero no especi
 | Líneas de servicio | 20 a 24 |
 | Evaluaciones de proveedores | 12 |
 | Facturas | 4 |
+| Snapshots de factura | 4 |
+| Detalles de factura | 12 a 20 |
 
 ### 9.1 Cobertura mínima del conjunto de datos
 
@@ -936,7 +1193,7 @@ El enunciado disponible menciona una cantidad y calidad de datos, pero no especi
 - Clientes con más de un vehículo, clientes con historial y clientes sin órdenes.
 - Servicios preventivos con intervalo, servicios correctivos sin intervalo y al menos un recordatorio próximo o vencido.
 - Órdenes con varias líneas, varios técnicos y más de un repuesto en una línea.
-- Facturas con distintos valores de repuestos y mano de obra.
+- Facturas con distintos valores de repuestos y mano de obra. Cada factura debe tener exactamente un `factura_snapshot` y al menos un `factura_detalles`; debe haber conceptos MANO_OBRA y REPUESTO, y una factura con solo mano de obra si el dataset lo permite.
 
 ### 9.2 Distribución sugerida de 12 órdenes
 
@@ -1046,7 +1303,8 @@ La siguiente tabla reproduce los criterios y valores que el equipo compartió. E
 | DP-07 | Formato y fecha de entrega | Pendiente de definir cuando el profesor comunique el formato y límite exactos. |
 | DP-08 | Consumo parcial y cancelación | No se registra consumo parcial. Una pieza se considera consumida al completar la orden. Retirar o cancelar presupone que la pieza no fue instalada o usada antes del cierre. Este supuesto debe explicarse en la sustentación. |
 | DP-09 | Trazabilidad del consumo por lote | Se conserva el saldo de cada lote y se aplica FEFO al completar; no se guarda un vínculo histórico lote-orden para mantener el alcance de cinco días. Si el profesor exige trazabilidad por orden, debe ampliarse el modelo explícitamente. |
-| DP-10 | Factura histórica | Se conservan snapshots en cabecera de factura y en las líneas/asignaciones inmutables de la orden. No se duplican líneas en tablas separadas de factura en esta versión. |
+| DP-10 | Factura histórica | La factura se separa en tres tablas: `facturas` (cabecera), `factura_snapshot` (datos históricos de cliente y vehículo, relación 1:1) y `factura_detalles` (conceptos cobrados, relación 1:N). Los datos se copian al emitir y quedan inmutables. |
+| DP-11 | Conceptos de factura | Cada línea de servicio genera un concepto `MANO_OBRA`; cada repuesto asignado genera un concepto `REPUESTO`. `descripcion_snapshot`, cantidad, precio unitario y subtotal se guardan en `factura_detalles`. Para el concepto de repuesto se conserva la relación con la asignación de `detalle_repuestos`. |
 
 ## 12.2 Confirmaciones que siguen abiertas
 
@@ -1064,7 +1322,7 @@ El modelo registra el consumo cuando la orden pasa a Completado. Por tanto, canc
 
 # 13. Lista de comprobación previa al primer desarrollo
 
-- [ ] El equipo revisó y aceptó esta versión 1.2 como documento maestro.
+- [ ] El equipo revisó y aceptó esta versión 1.3 como documento maestro.
 - [ ] Se confirmó con el profesor si son obligatorios cinco o siete patrones.
 - [ ] Se confirmó si la trazabilidad debe asociar cada consumo con el lote exacto.
 - [ ] Se revisó si existe un SQL base obligatorio o un esquema entregado por el profesor.
@@ -1090,7 +1348,7 @@ El modelo registra el consumo cuando la orden pasa a Completado. Por tanto, canc
 5. **Lotes que vencen con reservas:** si el stock operativo ya no cubre las reservas, se bloquea la finalización y se informa el déficit.
 6. **Consumo parcial:** no está soportado; cancelar o retirar una reserva presupone que la pieza no se utilizó físicamente.
 7. **Trazabilidad:** se consulta origen y saldo del lote, pero no se registra qué lote exacto abasteció cada orden en esta versión.
-8. **Facturas:** son únicas por orden y preservan snapshots. Las líneas de la orden se vuelven inmutables cuando la orden se completa.
+8. **Facturas:** son únicas por orden. La cabecera se guarda en `facturas`, los datos históricos del cliente y vehículo en `factura_snapshot`, y los conceptos cobrados en `factura_detalles`. Las líneas de la orden se vuelven inmutables cuando la orden se completa.
 9. **Archivo TXT:** se escribe después del commit; un fallo del archivo no revierte la factura ya guardada y permite reintentar.
 10. **Transacciones JDBC:** una operación compuesta utiliza la misma `Connection` en todos sus DAOs participantes.
 11. **Mano de obra:** el costo de cada línea es independiente de las horas; las horas permiten distribuir ingresos de mano de obra entre técnicos en el reporte.
@@ -1104,4 +1362,4 @@ El modelo registra el consumo cuando la orden pasa a Completado. Por tanto, canc
 
 ## Nota final de alcance
 
-Este documento es la especificación maestra de trabajo para CarMotors y contiene el modelo lógico propuesto. **No es un modelo físico, no es `schema.sql` y no constituye aprobación del profesor.** El siguiente entregable de diseño, una vez que el equipo valide el modelo lógico y resuelva las confirmaciones académicas, será el modelo físico y después los scripts `schema.sql` y `data.sql`.
+Este documento es la especificación maestra de trabajo para CarMotors y contiene el modelo lógico propuesto. **No es un modelo físico, no es `schema.sql` y no constituye aprobación del profesor.** El UML de clases es un modelo del dominio derivado del lógico, no una especificación completa de métodos ni de servicios. El siguiente entregable de diseño, una vez que el equipo valide el modelo lógico y resuelva las confirmaciones académicas, será el modelo físico y después los scripts `schema.sql` y `data.sql`.

@@ -3,7 +3,7 @@
 Arquitectura, capas, persistencia y condiciones de entrega. Son la base del [[Definition-of-Done]] y de la rúbrica.
 
 > [!warning] Documento derivado (no editar a mano)
-> Generado desde [[00-Documento-Maestro-v1.2]] por `scripts/sync-vault-from-master.ps1`.
+> Generado desde [[00-Documento-Maestro-v1.3]] por `scripts/sync-vault-from-master.ps1`.
 > Cualquier corrección se hace en el maestro y se regenera: así no hay dos versiones de la verdad.
 
 ### 5.1 Arquitectura y código
@@ -17,7 +17,7 @@ Arquitectura, capas, persistencia y condiciones de entrega. Son la base del [[De
 | RNF-05 | Toda la lógica de negocio definida en RN-01 a RN-22 se implementa en la capa `service`. |
 | RNF-06 | Un DAO por entidad o agregado, definido mediante interfaz e implementación JDBC. Incluye CRUD y consultas específicas necesarias. |
 | RNF-07 | Todas las consultas y actualizaciones parametrizables usan `PreparedStatement`. No se concatena entrada del usuario en sentencias SQL. |
-| RNF-08 | Las operaciones que modifican varias tablas —por ejemplo ingreso de lote, creación de orden, completar, cancelar y facturar— usan una transacción JDBC con `commit` y `rollback`. |
+| RNF-08 | Las operaciones que modifican varias tablas —por ejemplo ingreso de lote, creación de orden, completar, cancelar y facturar (cabecera, snapshot, conceptos y estado)— usan una transacción JDBC con `commit` y `rollback`. |
 | RNF-09 | Se implementan al menos cinco patrones, incluidos obligatoriamente Singleton y DAO. La sección 5.3 distingue los cinco patrones base de los dos opcionales propuestos. |
 | RNF-10 | Se aplican principios SOLID donde aporten claridad y se documentan ejemplos concretos en el README. |
 | RNF-11 | Se utilizan Lambdas y Stream API en procesamiento de colecciones para búsquedas, ordenamientos, agrupaciones o transformaciones de reportes. SQL se utiliza primero para reducir los datos recuperados. |

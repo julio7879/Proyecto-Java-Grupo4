@@ -3,7 +3,7 @@
 Regla de oro: una unidad de trabajo = una `Connection` = un `commit` o un `rollback`. Ver también [[Definition-of-Done]] y [[05-Servicios-Ordenes]].
 
 > [!warning] Documento derivado (no editar a mano)
-> Generado desde [[00-Documento-Maestro-v1.2]] por `scripts/sync-vault-from-master.ps1`.
+> Generado desde [[00-Documento-Maestro-v1.3]] por `scripts/sync-vault-from-master.ps1`.
 > Cualquier corrección se hace en el maestro y se regenera: así no hay dos versiones de la verdad.
 
 ### 5.6 Precisiones de JDBC y transacciones

@@ -3,7 +3,7 @@
 Orden de construcción acordado en el maestro. Cada rama se abre desde `develop` y vuelve por Pull Request (ver [[Git-Flow]]).
 
 > [!warning] Documento derivado (no editar a mano)
-> Generado desde [[00-Documento-Maestro-v1.2]] por `scripts/sync-vault-from-master.ps1`.
+> Generado desde [[00-Documento-Maestro-v1.3]] por `scripts/sync-vault-from-master.ps1`.
 > Cualquier corrección se hace en el maestro y se regenera: así no hay dos versiones de la verdad.
 
 ## 8. Plan de desarrollo y dependencias
@@ -18,7 +18,7 @@ Se conserva la propuesta de nueve ramas `feature/*`, ordenadas según las depend
 | 4 | `feature/gestion-inventario` | HU-01, HU-02 y HU-03: repuestos, lotes, reservas agregadas, alertas y consulta de trazabilidad de lote. | 3 |
 | 5 | `feature/gestion-tecnicos` | HU-16: técnicos, especialidades, activación y carga de trabajo. | 1 |
 | 6 | `feature/gestion-servicios` | HU-04 a HU-08: órdenes, líneas, técnicos, reservas, estados, cancelación y consumo FEFO. | 2, 4 y 5 |
-| 7 | `feature/facturacion` | HU-12: snapshots de factura, cálculos y generación/reimpresión TXT. | 6 |
+| 7 | `feature/facturacion` | HU-12: cabecera de factura, snapshot del cliente/vehículo, conceptos en detalles de factura, cálculos y generación/reimpresión TXT. | 6 |
 | 8 | `feature/reportes` | HU-11 y HU-13: recordatorios, servicios, productividad y consumo. | 6 y 7 |
 | 9 | `feature/documentacion` | README, diagrama E-R, diagrama de clases, diccionario de datos, pruebas y `data.sql` definitivo. | Todas |
 

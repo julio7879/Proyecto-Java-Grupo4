@@ -24,7 +24,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-if (-not $Master) { $Master = Join-Path $PSScriptRoot '..\docs\vault\00-Documento-Maestro-v1.2.md' }
+if (-not $Master) { $Master = Join-Path $PSScriptRoot '..\docs\vault\00-Documento-Maestro-v1.3.md' }
 if (-not $Vault)  { $Vault  = Join-Path $PSScriptRoot '..\docs\vault' }
 
 $Master = (Resolve-Path $Master).Path
@@ -102,12 +102,25 @@ foreach ($f in (Get-ChildItem -Path $Vault -Recurse -Filter *.md -File)) {
     }
 }
 
+# --- 7. Diagrama de clases y version declarada ------------------------------------
+$clasesPath = Join-Path $Vault '02-Arquitectura\Diagrama-Clases.md'
+$clasesOk = $false
+if (Test-Path $clasesPath) {
+    $clasesOk = ([System.IO.File]::ReadAllText($clasesPath, $utf8) -match 'classDiagram')
+}
+$versionMaster = if ($masterText -match '\*\*Versi[oó]n:\*\*\s*([0-9]+\.[0-9]+)') { $Matches[1] } else { '?' }
+$mocPath = Join-Path $Vault '00-MOC\00-Indice-General.md'
+$mocText = if (Test-Path $mocPath) { [System.IO.File]::ReadAllText($mocPath, $utf8) } else { '' }
+$versionOk = $mocText -match ("Versi[oó]n del documento maestro:\*\*\s*" + [regex]::Escape($versionMaster))
+
 # --- Resultados -------------------------------------------------------------------
 Add-Result 'RF referenciados en modulos' ($missingRF.Count -eq 0)    $(if ($missingRF) { 'faltan: ' + ($missingRF -join ', ') } else { '35/35' })
 Add-Result 'RN en catalogo de reglas'    ($missingRN.Count -eq 0)    $(if ($missingRN) { 'faltan: ' + ($missingRN -join ', ') } else { '22/22' })
 Add-Result 'RNF documentados'            ($missingRNF.Count -eq 0)   $(if ($missingRNF) { 'faltan: ' + ($missingRNF -join ', ') } else { '25/25' })
 Add-Result 'HU con archivo propio'       ($missingHU.Count -eq 0)    $(if ($missingHU) { 'faltan: ' + ($missingHU -join ', ') } else { '16/16' })
 Add-Result 'HU con criterios Dado/Entonces' ($huSinCriterios.Count -eq 0) $(if ($huSinCriterios) { 'sin criterios: ' + ($huSinCriterios -join ', ') } else { '16/16' })
+Add-Result 'Diagrama de clases UML'      $clasesOk                  $(if ($clasesOk) { 'classDiagram presente' } else { 'falta 02-Arquitectura/Diagrama-Clases.md o su bloque classDiagram' })
+Add-Result 'Version del maestro en el MOC' $versionOk                ("maestro v{0} · MOC {1}" -f $versionMaster, $(if ($versionOk) { 'coincide' } else { 'NO coincide' }))
 Add-Result 'Wikilinks resolubles'        ($broken.Count -eq 0)       $(if ($broken) { ($broken | Select-Object -Unique) -join '; ' } else { 'sin enlaces roscos' })
 
 $results | ForEach-Object {

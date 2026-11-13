@@ -3,7 +3,7 @@
     Genera los documentos derivados de la bóveda a partir del documento maestro.
 
 .DESCRIPTION
-    El documento maestro (docs/vault/00-Documento-Maestro-v1.2.md) es la única
+    El documento maestro (docs/vault/00-Documento-Maestro-v1.3.md) es la única
     fuente de verdad. Este script extrae de él las secciones que la bóveda
     publica y las reescribe, de modo que la documentación nunca se desincronice
     por edición manual de los derivados.
@@ -25,7 +25,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-if (-not $Master) { $Master = Join-Path $PSScriptRoot '..\docs\vault\00-Documento-Maestro-v1.2.md' }
+if (-not $Master) { $Master = Join-Path $PSScriptRoot '..\docs\vault\00-Documento-Maestro-v1.3.md' }
 if (-not $Vault)  { $Vault  = Join-Path $PSScriptRoot '..\docs\vault' }
 $utf8 = [System.Text.UTF8Encoding]::new($false)
 
@@ -77,7 +77,7 @@ function Write-VaultFile {
 
 $header = @(
     '> [!warning] Documento derivado (no editar a mano)',
-    '> Generado desde [[00-Documento-Maestro-v1.2]] por `scripts/sync-vault-from-master.ps1`.',
+    '> Generado desde [[00-Documento-Maestro-v1.3]] por `scripts/sync-vault-from-master.ps1`.',
     '> Cualquier corrección se hace en el maestro y se regenera: así no hay dos versiones de la verdad.',
     ''
 )
@@ -90,6 +90,25 @@ Write-VaultFile -Path (Join-Path $Vault '02-Arquitectura\Modelo-Relacional.md') 
     '# Modelo Relacional & Diccionario de Datos', ''
     'Entidades, claves, catálogos y cardinalidades del SGT. El detalle de cálculos de inventario vive en [[03-Inventario]] y el de snapshots en [[06-Facturacion]].', ''
 ) + $header + $body)
+
+# --- §2.9 Diagrama de clases UML ---------------------------------------------------
+$body = Step-Down (Get-Block '^## 2\.9 ' '^# 3\. ')
+$keep = @()
+foreach ($line in $body) {
+    if ($line -match '^#### Recursos editables') { break }
+    $keep += $line
+}
+while ($keep.Count -gt 0 -and ($keep[-1] -match '^\s*$' -or $keep[-1] -match '^---+$')) {
+    $keep = $keep[0..($keep.Count - 2)]
+}
+Write-VaultFile -Path (Join-Path $Vault '02-Arquitectura\Diagrama-Clases.md') -Content (@(
+    '# Diagrama de Clases UML (dominio persistente)', ''
+    'Clases del dominio derivadas de las 20 tablas del modelo lógico. Las operaciones de negocio viven en `service`, no en estas clases.', ''
+) + $header + $keep + @(
+    ''
+    '> [!note] Exportaciones pendientes'
+    '> El maestro enlaza los archivos `.mmd`, `.png` y `.svg` del diagrama, pero todavía no están versionados en el repositorio. Mientras tanto, el diagrama se lee del bloque Mermaid anterior y de [[00-Documento-Maestro-v1.3]] §2.9.'
+))
 
 # --- §5.1-§5.3 Requerimientos no funcionales -------------------------------------
 $body = Step-Down (Get-Block '^## 5\.1 ' '^## 5\.4 ')
@@ -151,7 +170,7 @@ function Save-Story {
         "rama: $rama"
         'rf: [' + ($rf -join ', ') + ']'
         'rn: [' + ($rn -join ', ') + ']'
-        'fuente: 00-Documento-Maestro-v1.2.md#6'
+        'fuente: 00-Documento-Maestro-v1.3.md#6'
         '---'
         ''
     )
@@ -161,7 +180,7 @@ function Save-Story {
         ''
         '> [!info] Trazabilidad'
         ("> Módulo: [[" + $doc + "]] · Rama: ``" + $rama + "`` · Requerimientos: " + $(if ($rf) { $rf -join ', ' } else { '—' }) + $(if ($rn) { ' · Reglas: ' + ($rn -join ', ') } else { '' }))
-        '> Fuente: [[00-Documento-Maestro-v1.2]] §6 · Criterios de aceptación en formato Dado / Cuando / Entonces.'
+        '> Fuente: [[00-Documento-Maestro-v1.3]] §6 · Criterios de aceptación en formato Dado / Cuando / Entonces.'
         ''
     ) + $Story.Body
 
@@ -193,4 +212,4 @@ foreach ($line in $block) {
 }
 if ($current) { Save-Story $current }
 
-Write-Host ("Listo: {0} historias de usuario y 5 documentos derivados." -f $counter)
+Write-Host ("Listo: {0} historias de usuario y 6 documentos derivados." -f $counter)

@@ -5,6 +5,7 @@
 - **Agente especialista:** `@agent-database`
 - **Archivos fuente:** `database/schema.sql` y `database/data.sql`
 - **Requerimientos no funcionales:** RNF-01, RNF-06, RNF-07, RNF-08, RNF-21, RNF-25
+- **Modelo de referencia:** 20 tablas descritas en [[Modelo-Relacional]] y [[Diagrama-Clases]] (v1.3, facturación en cabecera + snapshot + conceptos)
 
 ---
 
@@ -35,4 +36,6 @@ Para cumplir con los criterios de la rúbrica y las pruebas del equipo:
 | `servicio_tipos` | 8 | Preventivos con intervalo > 0, correctivos con intervalo NULL |
 | `ordenes_servicio` | 12 | 3 Pendientes, 2 En Proceso, 2 Completadas, 1 Facturada, 3 Entregadas, 1 Cancelada |
 | `facturas` | 4 | 1 para la Facturada y 3 para las Entregadas (integridad estricta) |
+| `factura_snapshot` | 4 | Exactamente una por factura (PK = FK); cliente y vehículo históricos |
+| `factura_detalles` | 20 | Conceptos `MANO_OBRA` y `REPUESTO`; incluir una factura con solo mano de obra |
 | `evaluaciones_proveedor` | 12 | Puntajes del 1 al 5 variados |

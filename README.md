@@ -15,8 +15,9 @@ Proyecto académico de cinco días (Campusland, Java 17 · Maven · MySQL 8 · J
 
 ## Documentación
 
-- **Documento maestro (fuente única de verdad):** [docs/vault/00-Documento-Maestro-v1.2.md](docs/vault/00-Documento-Maestro-v1.2.md) — 35 RF, 22 RN, 16 HU y 25 RNF.
+- **Documento maestro (fuente única de verdad):** [docs/vault/00-Documento-Maestro-v1.3.md](docs/vault/00-Documento-Maestro-v1.3.md) — 35 RF, 22 RN, 16 HU y 25 RNF.
 - **Bóveda Obsidian:** [docs/vault/](docs/vault/) — abrir esa carpeta como bóveda. Empieza por [00-Indice-General.md](docs/vault/00-MOC/00-Indice-General.md).
+- **Modelo relacional y diagrama de clases:** [Modelo-Relacional.md](docs/vault/02-Arquitectura/Modelo-Relacional.md) · [Diagrama-Clases.md](docs/vault/02-Arquitectura/Diagrama-Clases.md).
 - **Historias de usuario con criterios Dado/Cuando/Entonces:** [docs/vault/04-Historias/](docs/vault/04-Historias/).
 - **Tablero:** [CarMotors #6](https://github.com/users/julio7879/projects/6).
 
