@@ -18,6 +18,7 @@ Eres el Ingeniero de Software Senior especialista en **Facturación y Snapshots 
 
 ## Instrucciones de Implementación
 1. Validar que solo una orden en estado `Completado` y sin factura previa pueda ser facturada (relación 1:1 estricta con UK en `orden_id`).
-2. Persistir los snapshots de cliente y vehículo en la cabecera de la factura.
-3. Cálculos estrictos con `BigDecimal` y `RoundingMode.HALF_UP` (IVA al 19% fijo académico).
-4. El archivo físico `output/factura_<numero>.txt` se escribe tras el `commit` en UTF-8; si falla la escritura, la factura permanece en base de datos (`archivo_generado = false`) y se permite reintento.
+2. Persistir la factura en tres tablas: `facturas` (cabecera y totales), `factura_snapshot` (1:1 con cliente y vehículo históricos) y `factura_detalles` (una fila por concepto `MANO_OBRA` o `REPUESTO`, con descripción, cantidad, precio y subtotal congelados).
+3. Cálculos estrictos con `BigDecimal` y `RoundingMode.HALF_UP` (IVA al 19% fijo académico). `subtotal = Σ subtotales de factura_detalles`, `impuestos = subtotal × 0.19`.
+4. Cabecera, snapshot, detalles y cambio de estado a `Facturado` en una única transacción JDBC; validar antes del `COMMIT` que haya exactamente un snapshot y al menos un detalle.
+5. El archivo físico `output/factura_<numero>.txt` se escribe tras el `commit` en UTF-8; si falla la escritura, la factura permanece en base de datos (`archivo_generado = false`) y se permite reintento idempotente.

@@ -28,6 +28,8 @@ Esta skill contiene las listas de verificación obligatorias que los agentes deb
   4. Desempate final: menor ID de lote.
 - [ ] Decrementa `lotes.cantidad_actual` y `repuestos.cantidad_reservada` en la misma transacción.
 
-## 4. Validación de Snapshots (RN-11, Secc. 2.7)
-- [ ] Al facturar o asignar, se copian los valores vigentes a las columnas `_snapshot`.
+## 4. Validación de Snapshots (RN-11, RN-12, Secc. 2.7)
+- [ ] Al asignar, se copian los valores vigentes a `nombre_repuesto_snapshot` y `precio_unitario_venta`.
+- [ ] Al facturar se inserta exactamente un `factura_snapshot` y al menos un `factura_detalles` (MANO_OBRA y/o REPUESTO), con descripción, cantidad y precio congelados.
+- [ ] Los totales de `facturas` se derivan de la suma de subtotales de `factura_detalles`, no del catálogo actual.
 - [ ] Las líneas de una orden `Completada` no admiten modificaciones ni eliminación.
