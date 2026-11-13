@@ -1,0 +1,98 @@
+name: "🐞 Bug Report"
+description: Reporta un defecto o comportamiento incorrecto de CarMotors.
+title: "[BUG] "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar. Completa todos los campos obligatorios para que el bug sea reproducible.
+        Consulta la regla de negocio relacionada en la bóveda: `docs/vault/`.
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción
+      description: ¿Qué está fallando? Sé concreto.
+      placeholder: Al completar una orden con dos lotes, el stock no se descuenta por FEFO...
+    validations:
+      required: true
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Pasos para reproducir
+      placeholder: |
+        1. Ir al menú '...'
+        2. Elegir la opción '...'
+        3. Ingresar '...'
+        4. Ver el error
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+      description: Comportamiento correcto según RF / RN / HU.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Resultado actual
+    validations:
+      required: true
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia
+      description: Salida de consola, fragmento de log (sin credenciales), capturas o consultas SQL.
+      render: text
+  - type: input
+    id: ambiente
+    attributes:
+      label: Ambiente
+      description: SO, versión de Java, versión de MySQL, rama y commit.
+      placeholder: "Windows 11 · Java 17.0.x · MySQL 8.0.x · develop @ abc1234"
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - P0 — Critical (bloquea al equipo o la entrega)
+        - P1 — High
+        - P2 — Medium
+        - P3 — Low
+    validations:
+      required: true
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: Módulo
+      options:
+        - Setup
+        - Clientes y Vehículos
+        - Proveedores
+        - Inventario
+        - Técnicos
+        - Servicios y Órdenes
+        - Facturación
+        - Reportes
+        - Base de Datos
+        - Documentación
+    validations:
+      required: true
+  - type: input
+    id: referencias
+    attributes:
+      label: Requerimientos relacionados
+      placeholder: "RF-13, RN-03, HU-07"
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación de la corrección
+      placeholder: |
+        - [ ] Dado ..., cuando ..., entonces ...
+        - [ ] No hay regresión en ...
+    validations:
+      required: true

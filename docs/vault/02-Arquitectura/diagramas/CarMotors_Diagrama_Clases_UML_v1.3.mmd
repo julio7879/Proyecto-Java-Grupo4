@@ -1,0 +1,162 @@
+classDiagram
+    direction LR
+    class Cliente {
+      +int id
+      +String nombre
+      +String documentoIdentidad
+      +String telefono
+      +String email
+      +boolean activo
+    }
+    class Vehiculo {
+      +int id
+      +String placa
+      +String marca
+      +String modelo
+    }
+    class ServicioEstado {
+      +int id
+      +String nombre
+    }
+    class OrdenServicio {
+      +int id
+      +LocalDateTime fechaRecepcion
+      +LocalDateTime fechaCompletado
+      +LocalDateTime fechaEntrega
+      +LocalDateTime fechaCancelacion
+      +String descripcionProblema
+    }
+    class OrdenServicioDetalle {
+      +int id
+      +String nombreServicioSnapshot
+      +BigDecimal costoManoObra
+      +String observaciones
+    }
+    class ServicioTipo {
+      +int id
+      +String nombre
+      +BigDecimal precioManoObraBase
+      +Integer intervaloMeses
+    }
+    class MantenimientoTipo {
+      +int id
+      +String nombre
+    }
+    class Especialidad {
+      +int id
+      +String nombre
+    }
+    class Tecnico {
+      +int id
+      +String nombre
+      +String documentoIdentidad
+      +String telefono
+      +boolean activo
+    }
+    class DetalleTecnico {
+      +BigDecimal horasTrabajadas
+    }
+    class RepuestoTipo {
+      +int id
+      +String nombre
+    }
+    class Repuesto {
+      +int id
+      +String nombre
+      +String marca
+      +BigDecimal precioVenta
+      +int cantidadReservada
+      +int stockMinimo
+      +boolean activo
+    }
+    class Proveedor {
+      +int id
+      +String nombre
+      +String telefono
+      +String email
+      +String direccion
+      +boolean activo
+    }
+    class ProveedorRepuesto {
+      +BigDecimal costo
+      +int tiempoEntregaDias
+      +boolean esHabitual
+    }
+    class Lote {
+      +int id
+      +String codigoLote
+      +LocalDate fechaIngreso
+      +LocalDate fechaCaducidad
+      +int cantidadInicial
+      +int cantidadActual
+    }
+    class EvaluacionProveedor {
+      +int id
+      +LocalDate fecha
+      +int calidad
+      +int puntualidad
+      +String comentario
+    }
+    class DetalleRepuesto {
+      +int cantidadAsignada
+      +String nombreRepuestoSnapshot
+      +BigDecimal precioUnitarioVenta
+    }
+    class Factura {
+      +int id
+      +String numeroFactura
+      +LocalDateTime fechaEmision
+      +BigDecimal totalRepuestos
+      +BigDecimal totalManoObra
+      +BigDecimal subtotal
+      +BigDecimal tasaIva
+      +BigDecimal impuestos
+      +BigDecimal totalFinal
+      +boolean archivoGenerado
+    }
+    class FacturaSnapshot {
+      +String clienteNombreSnapshot
+      +String clienteDocumentoSnapshot
+      +String clienteTelefonoSnapshot
+      +String clienteEmailSnapshot
+      +String vehiculoPlacaSnapshot
+      +String vehiculoMarcaSnapshot
+      +String vehiculoModeloSnapshot
+    }
+    class FacturaDetalle {
+      +int id
+      +TipoConceptoFactura tipoConcepto
+      +String descripcionSnapshot
+      +int cantidad
+      +BigDecimal precioUnitario
+      +BigDecimal subtotal
+    }
+    class TipoConceptoFactura {
+      <<enumeration>>
+      MANO_OBRA
+      REPUESTO
+    }
+
+    Cliente "1" --> "0..*" Vehiculo : posee
+    Vehiculo "1" --> "0..*" OrdenServicio : registra
+    ServicioEstado "1" --> "0..*" OrdenServicio : clasifica
+    OrdenServicio "1" *-- "1..*" OrdenServicioDetalle : contiene
+    ServicioTipo "1" --> "0..*" OrdenServicioDetalle : identifica
+    MantenimientoTipo "1" --> "0..*" ServicioTipo : clasifica
+    Especialidad "1" --> "0..*" ServicioTipo : requiere
+    Especialidad "1" --> "0..*" Tecnico : habilita
+    OrdenServicioDetalle "1" --> "0..*" DetalleTecnico : asignaciones
+    Tecnico "1" --> "0..*" DetalleTecnico : participa
+    RepuestoTipo "1" --> "0..*" Repuesto : clasifica
+    OrdenServicioDetalle "1" --> "0..*" DetalleRepuesto : reserva
+    Repuesto "1" --> "0..*" DetalleRepuesto : asignado
+    Proveedor "1" --> "0..*" ProveedorRepuesto : ofrece
+    Repuesto "1" --> "0..*" ProveedorRepuesto : esOfrecido
+    ProveedorRepuesto "1" --> "0..*" Lote : abastece
+    Proveedor "1" --> "0..*" EvaluacionProveedor : recibe
+    OrdenServicio "1" --> "0..1" Factura : genera
+    Factura "1" *-- "1" FacturaSnapshot : conserva
+    Factura "1" *-- "1..*" FacturaDetalle : desglosa
+    OrdenServicioDetalle "1" --> "0..*" FacturaDetalle : origina
+    DetalleRepuesto "0..1" --> "0..1" FacturaDetalle : respaldaConcepto
+    FacturaDetalle ..> TipoConceptoFactura : clasifica

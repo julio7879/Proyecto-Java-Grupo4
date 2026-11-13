@@ -1,0 +1,181 @@
+erDiagram
+    CLIENTES ||--o{ VEHICULOS : posee
+    VEHICULOS ||--o{ ORDENES_SERVICIO : registra
+    SERVICIO_ESTADOS ||--o{ ORDENES_SERVICIO : clasifica
+    ORDENES_SERVICIO ||--|{ ORDEN_SERVICIO_DETALLE : contiene
+    SERVICIO_TIPOS ||--o{ ORDEN_SERVICIO_DETALLE : identifica
+
+    ESPECIALIDADES ||--o{ TECNICOS : habilita
+    ESPECIALIDADES ||--o{ SERVICIO_TIPOS : requiere
+    MANTENIMIENTO_TIPOS ||--o{ SERVICIO_TIPOS : clasifica
+    ORDEN_SERVICIO_DETALLE ||--o{ DETALLE_TECNICOS : asigna
+    TECNICOS ||--o{ DETALLE_TECNICOS : participa
+
+    REPUESTO_TIPOS ||--o{ REPUESTOS : clasifica
+    PROVEEDORES ||--o{ PROVEEDOR_REPUESTOS : ofrece
+    REPUESTOS ||--o{ PROVEEDOR_REPUESTOS : disponible_con
+    PROVEEDOR_REPUESTOS ||--o{ LOTES : abastece
+    PROVEEDORES ||--o{ EVALUACIONES_PROVEEDOR : recibe
+
+    ORDEN_SERVICIO_DETALLE ||--o{ DETALLE_REPUESTOS : reserva
+    REPUESTOS ||--o{ DETALLE_REPUESTOS : asignado_a
+    ORDENES_SERVICIO ||--o| FACTURAS : genera
+    FACTURAS ||--|| FACTURA_SNAPSHOT : conserva
+    FACTURAS ||--|{ FACTURA_DETALLES : desglosa
+    ORDEN_SERVICIO_DETALLE ||--o{ FACTURA_DETALLES : origina
+    DETALLE_REPUESTOS o|--o| FACTURA_DETALLES : respalda
+
+    CLIENTES {
+        int id PK
+        string nombre
+        string documento_identidad UK
+        string telefono
+        string email UK
+        boolean activo
+    }
+    VEHICULOS {
+        int id PK
+        int cliente_id FK
+        string placa UK
+        string marca
+        string modelo
+    }
+    SERVICIO_ESTADOS {
+        int id PK
+        string nombre UK
+    }
+    ORDENES_SERVICIO {
+        int id PK
+        int vehiculo_id FK
+        int estado_id FK
+        datetime fecha_recepcion
+        datetime fecha_completado
+        datetime fecha_entrega
+        datetime fecha_cancelacion
+        string descripcion_problema
+    }
+    ORDEN_SERVICIO_DETALLE {
+        int id PK
+        int orden_id FK
+        int servicio_tipo_id FK
+        string nombre_servicio_snapshot
+        decimal costo_mano_obra
+        string observaciones
+    }
+    MANTENIMIENTO_TIPOS {
+        int id PK
+        string nombre UK
+    }
+    ESPECIALIDADES {
+        int id PK
+        string nombre UK
+    }
+    SERVICIO_TIPOS {
+        int id PK
+        string nombre UK
+        int mantenimiento_tipo_id FK
+        int especialidad_id FK
+        decimal precio_mano_obra_base
+        int intervalo_meses
+    }
+    TECNICOS {
+        int id PK
+        string nombre
+        string documento_identidad UK
+        int especialidad_id FK
+        string telefono
+        boolean activo
+    }
+    DETALLE_TECNICOS {
+        int detalle_id PK, FK
+        int tecnico_id PK, FK
+        decimal horas_trabajadas
+    }
+    REPUESTO_TIPOS {
+        int id PK
+        string nombre UK
+    }
+    REPUESTOS {
+        int id PK
+        string nombre
+        int repuesto_tipo_id FK
+        string marca
+        decimal precio_venta
+        int cantidad_reservada
+        int stock_minimo
+        boolean activo
+    }
+    PROVEEDORES {
+        int id PK
+        string nombre
+        string telefono
+        string email
+        string direccion
+        boolean activo
+    }
+    PROVEEDOR_REPUESTOS {
+        int proveedor_id PK, FK
+        int repuesto_id PK, FK
+        decimal costo
+        int tiempo_entrega_dias
+        boolean es_habitual
+    }
+    LOTES {
+        int id PK
+        string codigo_lote UK
+        int proveedor_id FK
+        int repuesto_id FK
+        date fecha_ingreso
+        date fecha_caducidad
+        int cantidad_inicial
+        int cantidad_actual
+    }
+    EVALUACIONES_PROVEEDOR {
+        int id PK
+        int proveedor_id FK
+        date fecha
+        int calidad
+        int puntualidad
+        string comentario
+    }
+    DETALLE_REPUESTOS {
+        int detalle_id PK, FK
+        int repuesto_id PK, FK
+        int cantidad_asignada
+        string nombre_repuesto_snapshot
+        decimal precio_unitario_venta
+    }
+    FACTURAS {
+        int id PK
+        string numero_factura UK
+        int orden_id FK, UK
+        datetime fecha_emision
+        decimal total_repuestos
+        decimal total_mano_obra
+        decimal subtotal
+        decimal tasa_iva
+        decimal impuestos
+        decimal total_final
+        boolean archivo_generado
+    }
+    FACTURA_SNAPSHOT {
+        int factura_id PK, FK
+        string cliente_nombre_snapshot
+        string cliente_documento_snapshot
+        string cliente_telefono_snapshot
+        string cliente_email_snapshot
+        string vehiculo_placa_snapshot
+        string vehiculo_marca_snapshot
+        string vehiculo_modelo_snapshot
+    }
+    FACTURA_DETALLES {
+        int id PK
+        int factura_id FK
+        int orden_detalle_id FK
+        int repuesto_id
+        string tipo_concepto
+        string descripcion_snapshot
+        int cantidad
+        decimal precio_unitario
+        decimal subtotal
+    }
