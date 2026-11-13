@@ -1,4 +1,4 @@
-package com.carmotors.excepcion;
+package com.carmotors.sgt.exception;
 
 /**
  * Error de configuración de la aplicación (archivo faltante, propiedad

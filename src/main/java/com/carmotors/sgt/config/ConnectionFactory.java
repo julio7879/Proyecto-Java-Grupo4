@@ -1,6 +1,6 @@
-package com.carmotors.config;
+package com.carmotors.sgt.config;
 
-import com.carmotors.excepcion.ConfiguracionException;
+import com.carmotors.sgt.exception.ConfiguracionException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,16 +25,16 @@ import java.util.Properties;
  * entrega una conexión nueva en cada llamada para que cada transacción maneje
  * su propio commit/rollback y la cierre con try-with-resources.</p>
  */
-public final class ConexionFactory {
+public final class ConnectionFactory {
 
     private static final String ARCHIVO_CONFIG = "config.properties";
 
-    private static ConexionFactory instancia;
+    private static ConnectionFactory instancia;
 
     private final Properties propiedades;
 
     // Constructor privado: nadie fuera de la clase puede crear otra instancia.
-    private ConexionFactory() {
+    private ConnectionFactory() {
         this.propiedades = cargarPropiedades();
     }
 
@@ -43,9 +43,9 @@ public final class ConexionFactory {
      * (inicialización perezosa). Es synchronized para que, si dos hilos la
      * piden a la vez, no se creen dos instancias.
      */
-    public static synchronized ConexionFactory getInstance() {
+    public static synchronized ConnectionFactory getInstance() {
         if (instancia == null) {
-            instancia = new ConexionFactory();
+            instancia = new ConnectionFactory();
         }
         return instancia;
     }
