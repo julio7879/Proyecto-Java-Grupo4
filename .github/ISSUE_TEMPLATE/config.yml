@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📘 Documento maestro y bóveda del proyecto
+    url: https://github.com/julio7879/Proyecto-Java-Grupo4/tree/develop/docs
+    about: Consulta RF, RN e historias de usuario antes de abrir un issue.
+  - name: 📋 Tablero CarMotors
+    url: https://github.com/users/julio7879/projects/6
+    about: Revisa el tablero para evitar issues duplicados.

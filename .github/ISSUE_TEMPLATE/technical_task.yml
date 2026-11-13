@@ -1,0 +1,59 @@
+name: "🛠️ Technical Task"
+description: Tarea técnica (configuración, refactor, SQL, documentación técnica).
+title: "[TASK] "
+labels: ["type:task"]
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo técnico
+    validations:
+      required: true
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance
+      description: Qué incluye y qué NO incluye esta tarea.
+      placeholder: |
+        Incluye:
+        - ...
+        No incluye:
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: consideraciones
+    attributes:
+      label: Consideraciones
+      description: Decisiones técnicas, capas afectadas (view / controller / service / repository), transacciones, patrones.
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias
+      placeholder: "Depende de #3"
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: Módulo
+      options:
+        - Setup
+        - Clientes y Vehículos
+        - Proveedores
+        - Inventario
+        - Técnicos
+        - Servicios y Órdenes
+        - Facturación
+        - Reportes
+        - Base de Datos
+        - Documentación
+    validations:
+      required: true
+  - type: textarea
+    id: finalizacion
+    attributes:
+      label: Criterios de finalización
+      placeholder: |
+        - [ ] Compila con `mvn clean compile`
+        - [ ] ...
+    validations:
+      required: true

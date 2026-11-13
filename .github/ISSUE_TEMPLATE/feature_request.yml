@@ -1,0 +1,89 @@
+name: "✨ Feature / User Story"
+description: Propón una funcionalidad o historia de usuario de CarMotors.
+title: "[FEAT] "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Toda funcionalidad debe estar respaldada por el documento maestro (RF / RN / HU).
+        Si no existe en el documento, primero se discute con el líder.
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: ¿Qué se quiere lograr?
+    validations:
+      required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema que resuelve
+    validations:
+      required: true
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción funcional
+      description: Comportamiento esperado, reglas de negocio aplicables y límites de alcance.
+    validations:
+      required: true
+  - type: textarea
+    id: historias
+    attributes:
+      label: Historias de usuario
+      placeholder: |
+        HU-xx — Como administrador, quiero ..., para ...
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Formato Dado / Cuando / Entonces.
+      placeholder: |
+        - [ ] Dado ..., cuando ..., entonces ...
+        - [ ] Dado ..., cuando ..., entonces ...
+    validations:
+      required: true
+  - type: input
+    id: referencias
+    attributes:
+      label: Requerimientos relacionados
+      placeholder: "RF-08, RF-35, RN-18"
+    validations:
+      required: true
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: Dependencias
+      description: Issues, módulos o tablas que deben existir antes.
+      placeholder: "Depende de #12 (gestión de técnicos)"
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: Módulo
+      options:
+        - Setup
+        - Clientes y Vehículos
+        - Proveedores
+        - Inventario
+        - Técnicos
+        - Servicios y Órdenes
+        - Facturación
+        - Reportes
+        - Base de Datos
+        - Documentación
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - P0 — Critical
+        - P1 — High (prioridad Alta del documento maestro)
+        - P2 — Medium (prioridad Media del documento maestro)
+        - P3 — Low
+    validations:
+      required: true

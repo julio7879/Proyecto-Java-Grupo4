@@ -1,0 +1,33 @@
+# Build / Maven
+/target/
+*.class
+*.jar
+*.war
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Logs
+*.log
+logs/
+
+# Configuración local con credenciales (RNF-14). Subir solo config.properties.example
+config.properties
+
+# Facturas TXT generadas en ejecución
+output/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Obsidian: estado local de cada integrante (la configuración compartida sí se versiona)
+docs/vault/.obsidian/workspace.json
+docs/vault/.obsidian/workspace-mobile.json
+docs/vault/.obsidian/cache
+docs/vault/.trash/
