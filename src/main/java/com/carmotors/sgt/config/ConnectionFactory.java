@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -64,17 +63,6 @@ public final class ConnectionFactory {
     /** Carpeta donde se guardan los archivos de texto de las facturas. */
     public String getCarpetaFacturas() {
         return obtenerRequerida("factura.carpeta");
-    }
-
-    /** Tasa de IVA expresada como fracción (por ejemplo 0.19). */
-    public BigDecimal getTasaIva() {
-        String valor = obtenerRequerida("iva.tasa");
-        try {
-            return new BigDecimal(valor);
-        } catch (NumberFormatException e) {
-            throw new ConfiguracionException(
-                    "La propiedad 'iva.tasa' no es un número válido: " + valor, e);
-        }
     }
 
     private Properties cargarPropiedades() {

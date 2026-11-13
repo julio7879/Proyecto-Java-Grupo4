@@ -23,7 +23,6 @@ src/main/resources/config.properties
 
 # Facturas TXT generadas en ejecución
 output/
-facturas/
 
 # Sistema operativo
 .DS_Store
