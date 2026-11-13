@@ -1,5 +1,6 @@
 # Build / Maven
 /target/
+target/
 *.class
 *.jar
 *.war
@@ -18,9 +19,11 @@ logs/
 
 # Configuración local con credenciales (RNF-14). Subir solo config.properties.example
 config.properties
+src/main/resources/config.properties
 
 # Facturas TXT generadas en ejecución
 output/
+facturas/
 
 # Sistema operativo
 .DS_Store
