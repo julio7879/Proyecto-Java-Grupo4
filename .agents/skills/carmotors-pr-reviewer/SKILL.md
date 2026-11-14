@@ -53,6 +53,8 @@ Verificar que los archivos modificados respeten estrictamente los paquetes de `c
 | **Servicio** (`com.carmotors.sgt.service` + `builder`, `chain`, `facade`, `observer`, `state`) | Orquesta la lógica de negocio (RN-01 a RN-22), valida reglas y demarca transacciones JDBC (`commit`/`rollback`). | **NUNCA** lee datos de consola (`System.in`, `Scanner`) ni imprime mensajes directos a consola (salvo `StockObserver` en consola si aplica). |
 | **Repositorio / DAO** (`com.carmotors.sgt.repository` y `repository.impl`) | Define interfaces DAO e implementaciones JDBC con `PreparedStatement`. Mapea `ResultSet` a entidades de `model` y viceversa. | **NUNCA** usar paquete `dao` (el paquete oficial es `repository`). **NUNCA** decide reglas de negocio ni abre su propia conexión si participa en una transacción multi-tabla. |
 
+> **Nivel Técnico del Curso:** Verificar contra `docs/vault/03-Gestion/Alcance-Tecnico-Java.md` que el PR solo utilice conceptos vistos en las 20 sesiones de clase (sin APIs avanzadas como `Optional` en validadores, `ResolverStyle.STRICT`, `Locale.ROOT`, `record` o reflexión).
+
 ---
 
 ### Paso 3: Lista de Comprobación de Reglas de Negocio Críticas (Maestro v1.3)

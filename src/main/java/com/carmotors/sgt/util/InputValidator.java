@@ -5,25 +5,20 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
- * Utilidades puras de validación, normalización y conversión de formatos para entradas de consola.
+ * Utilidades de validación, normalización y conversión de formatos para entradas de consola.
  * Cumple con RNF-13 (validación de formatos) y RNF-15 (dinero con {@link BigDecimal} escala 2 y HALF_UP).
  */
 public final class InputValidator {
 
     public static final int ESCALA_MONETARIA = 2;
     public static final RoundingMode REDONDEO_MONETARIO = RoundingMode.HALF_UP;
-    public static final DateTimeFormatter FORMATO_FECHA =
-            DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
+    public static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private static final Pattern PATRON_EMAIL =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$");
-    private static final Pattern PATRON_PLACA = Pattern.compile("^[A-Z0-9]{5,10}$");
+    private static final String REGEX_EMAIL =
+            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$";
+    private static final String REGEX_PLACA = "^[A-Z0-9]{5,10}$";
 
     private InputValidator() {
     }
@@ -32,7 +27,10 @@ public final class InputValidator {
      * Recorta espacios al inicio y al final; retorna cadena vacía si la entrada es {@code null}.
      */
     public static String normalizarTexto(String entrada) {
-        return entrada == null ? "" : entrada.trim();
+        if (entrada == null) {
+            return "";
+        }
+        return entrada.trim();
     }
 
     /**
@@ -43,18 +41,26 @@ public final class InputValidator {
     }
 
     /**
-     * Intenta convertir una cadena en un entero válido.
+     * Verifica si la cadena representa un número entero válido.
      */
-    public static Optional<Integer> parsearEntero(String entrada) {
+    public static boolean esEntero(String entrada) {
         String texto = normalizarTexto(entrada);
         if (texto.isEmpty()) {
-            return Optional.empty();
+            return false;
         }
         try {
-            return Optional.of(Integer.parseInt(texto));
+            Integer.parseInt(texto);
+            return true;
         } catch (NumberFormatException e) {
-            return Optional.empty();
+            return false;
         }
+    }
+
+    /**
+     * Convierte una cadena válida en entero.
+     */
+    public static int convertirAEntero(String entrada) {
+        return Integer.parseInt(normalizarTexto(entrada));
     }
 
     /**
@@ -79,22 +85,28 @@ public final class InputValidator {
     }
 
     /**
-     * Convierte una cadena numérica a {@link BigDecimal} con escala 2 y {@link RoundingMode#HALF_UP}.
-     * Tolera coma decimal convirtiéndola a punto antes de construir el valor exacto.
+     * Verifica si la cadena representa un número decimal válido para {@link BigDecimal}.
      */
-    public static Optional<BigDecimal> parsearBigDecimal(String entrada) {
+    public static boolean esBigDecimalValido(String entrada) {
         String texto = normalizarTexto(entrada);
         if (texto.isEmpty()) {
-            return Optional.empty();
+            return false;
         }
         String normalizado = texto.replace(',', '.');
         try {
-            BigDecimal monto = new BigDecimal(normalizado)
-                    .setScale(ESCALA_MONETARIA, REDONDEO_MONETARIO);
-            return Optional.of(monto);
+            new BigDecimal(normalizado).setScale(ESCALA_MONETARIA, REDONDEO_MONETARIO);
+            return true;
         } catch (NumberFormatException | ArithmeticException e) {
-            return Optional.empty();
+            return false;
         }
+    }
+
+    /**
+     * Convierte una cadena numérica válida a {@link BigDecimal} con escala 2 y {@link RoundingMode#HALF_UP}.
+     */
+    public static BigDecimal convertirABigDecimal(String entrada) {
+        String normalizado = normalizarTexto(entrada).replace(',', '.');
+        return new BigDecimal(normalizado).setScale(ESCALA_MONETARIA, REDONDEO_MONETARIO);
     }
 
     /**
@@ -112,18 +124,26 @@ public final class InputValidator {
     }
 
     /**
-     * Parsea una fecha en formato estricto {@code yyyy-MM-dd} (ej. rechaza 2026-02-30).
+     * Valida que la fecha tenga formato {@code yyyy-MM-dd} y corresponda a una fecha real del calendario.
      */
-    public static Optional<LocalDate> parsearFecha(String entrada) {
+    public static boolean esFechaValida(String entrada) {
         String texto = normalizarTexto(entrada);
         if (texto.isEmpty()) {
-            return Optional.empty();
+            return false;
         }
         try {
-            return Optional.of(LocalDate.parse(texto, FORMATO_FECHA));
+            LocalDate fecha = LocalDate.parse(texto, FORMATO_FECHA);
+            return fecha.toString().equals(texto);
         } catch (DateTimeParseException e) {
-            return Optional.empty();
+            return false;
         }
+    }
+
+    /**
+     * Convierte una cadena válida en formato {@code yyyy-MM-dd} a {@link LocalDate}.
+     */
+    public static LocalDate convertirAFecha(String entrada) {
+        return LocalDate.parse(normalizarTexto(entrada), FORMATO_FECHA);
     }
 
     /**
@@ -131,7 +151,7 @@ public final class InputValidator {
      */
     public static boolean esEmailValido(String entrada) {
         String texto = normalizarTexto(entrada);
-        return !texto.isEmpty() && PATRON_EMAIL.matcher(texto).matches();
+        return !texto.isEmpty() && texto.matches(REGEX_EMAIL);
     }
 
     /**
@@ -141,7 +161,7 @@ public final class InputValidator {
         if (entrada == null) {
             return "";
         }
-        return entrada.replaceAll("[\\s-]+", "").toUpperCase(Locale.ROOT);
+        return entrada.replace(" ", "").replace("-", "").toUpperCase();
     }
 
     /**
@@ -149,18 +169,25 @@ public final class InputValidator {
      */
     public static boolean esPlacaValida(String entrada) {
         String placa = normalizarPlaca(entrada);
-        return PATRON_PLACA.matcher(placa).matches();
+        return placa.matches(REGEX_PLACA);
     }
 
     /**
-     * Interpreta confirmaciones de consola Sí/No ({@code S}, {@code SI}, {@code SÍ}, {@code Y}, {@code YES}, {@code N}, {@code NO}).
+     * Verifica si la respuesta corresponde a una confirmación válida Sí/No.
      */
-    public static Optional<Boolean> parsearConfirmacion(String entrada) {
-        String valor = normalizarTexto(entrada).toUpperCase(Locale.ROOT);
-        return switch (valor) {
-            case "S", "SI", "SÍ", "Y", "YES" -> Optional.of(Boolean.TRUE);
-            case "N", "NO" -> Optional.of(Boolean.FALSE);
-            default -> Optional.empty();
-        };
+    public static boolean esConfirmacionValida(String entrada) {
+        String valor = normalizarTexto(entrada).toUpperCase();
+        return valor.equals("S") || valor.equals("SI") || valor.equals("SÍ")
+                || valor.equals("Y") || valor.equals("YES")
+                || valor.equals("N") || valor.equals("NO");
+    }
+
+    /**
+     * Convierte una respuesta válida Sí/No en {@code true} (Sí) o {@code false} (No).
+     */
+    public static boolean convertirAConfirmacion(String entrada) {
+        String valor = normalizarTexto(entrada).toUpperCase();
+        return valor.equals("S") || valor.equals("SI") || valor.equals("SÍ")
+                || valor.equals("Y") || valor.equals("YES");
     }
 }

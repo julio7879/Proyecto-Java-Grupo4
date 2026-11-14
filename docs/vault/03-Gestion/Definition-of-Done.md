@@ -21,5 +21,6 @@ Para que una Historia de Usuario o Tarea se considere oficialmente **DONE** y se
 
 ## 🔗 Auditoría Automatizada y Agentes
 - Antes de abrir o aprobar un PR en `develop`, valida la implementación contra [[Reglas-Negocio]], [[Transacciones-JDBC]] y [[Patrones-Diseno]] usando [[carmotors-rules-validator]] y [[carmotors-pr-reviewer]].
+- Verificar que el código respete el nivel básico–intermedio de [[Alcance-Tecnico-Java]] (solo construcciones vistas en las 20 sesiones del curso).
 - Consulta los criterios `Dado/Cuando/Entonces` y tareas `Tx.y` en [[Plan-Sprints]] mediante [[carmotors-qmd-consultant]].
 - Mapa completo de responsables por módulo: [[00-Mapa-Agentes-Skills]].

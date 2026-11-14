@@ -85,9 +85,10 @@ Cada historia conserva sus criterios de aceptación **Dado / Cuando / Entonces**
 Guías de trabajo:
 - [[03-Gestion/Git-Flow|Convenciones de Git Flow & Commits]]
 - [[03-Gestion/Definition-of-Done|Definition of Done (DoD) & Checklist de Calidad]]
+- [[03-Gestion/Alcance-Tecnico-Java|Alcance Técnico de Java (20 Sesiones del Curso)]]
 - [[03-Gestion/Plan-Iteraciones|Plan de 9 Ramas Feature & Dependencias]]
 - [[03-Gestion/Plan-Sprints|Plan Oficial de Sprints & Reparto (S0–S8)]]
 
 Sistema multi-agente y skills:
-- [[05-Agentes/00-Mapa-Agentes-Skills|Mapa Visual de Agentes Especialistas y Skills]]
+- [[00-Mapa-Agentes-Skills|Mapa Visual de Agentes Especialistas y Skills]]
 - [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]

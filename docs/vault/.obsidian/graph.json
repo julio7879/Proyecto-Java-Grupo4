@@ -8,59 +8,59 @@
   "collapse-color-groups": false,
   "colorGroups": [
     {
-      "query": "path:00-MOC",
-      "color": {
-        "a": 1,
-        "rgb": 15381256
-      }
-    },
-    {
-      "query": "tag:#moc",
-      "color": {
-        "a": 1,
-        "rgb": 15381256
-      }
-    },
-    {
-      "query": "tag:#skill",
-      "color": {
-        "a": 1,
-        "rgb": 15485081
-      }
-    },
-    {
       "query": "path:05-Agentes",
       "color": {
         "a": 1,
-        "rgb": 16347926
+        "rgb": 3656187
       }
     },
     {
-      "query": "path:01-Modulos",
+      "query": "path:06-Skills",
       "color": {
         "a": 1,
-        "rgb": 959977
+        "rgb": 16744218
+      }
+    },
+    {
+      "query": "path:00-Documento-Maestro",
+      "color": {
+        "a": 1,
+        "rgb": 16729943
+      }
+    },
+    {
+      "query": "path:00-MOC",
+      "color": {
+        "a": 1,
+        "rgb": 16729943
       }
     },
     {
       "query": "path:02-Arquitectura",
       "color": {
         "a": 1,
-        "rgb": 9133302
+        "rgb": 4515159
+      }
+    },
+    {
+      "query": "path:01-Modulos",
+      "color": {
+        "a": 1,
+        "rgb": 11355106
       }
     },
     {
       "query": "path:03-Gestion",
       "color": {
         "a": 1,
-        "rgb": 1096065
+        "rgb": 16763904
       }
     },
     {
       "query": "path:04-Historias",
       "color": {
         "a": 1,
-        "rgb": 6583435
+        "rgb": 15485081
       }
     }
   ],
@@ -75,5 +75,5 @@
   "linkStrength": 0.9,
   "linkDistance": 220,
   "scale": 1,
-  "close": true
+  "close": false
 }

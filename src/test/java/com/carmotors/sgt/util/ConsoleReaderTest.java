@@ -2,19 +2,16 @@ package com.carmotors.sgt.util;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Timeout(value = 5, unit = TimeUnit.SECONDS)
 class ConsoleReaderTest {
 
     private void simularEntrada(String lineas) {

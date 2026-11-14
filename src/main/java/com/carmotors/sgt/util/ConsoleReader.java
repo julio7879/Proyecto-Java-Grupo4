@@ -1,10 +1,7 @@
 package com.carmotors.sgt.util;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -13,7 +10,7 @@ import java.util.Scanner;
  */
 public final class ConsoleReader {
 
-    private static Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+    private static Scanner scanner = new Scanner(System.in);
 
     private ConsoleReader() {
     }
@@ -21,7 +18,7 @@ public final class ConsoleReader {
     /**
      * Permite reemplazar el {@link Scanner} en pruebas unitarias sin cerrar {@code System.in}.
      */
-    static void setScanner(Scanner nuevoScanner) {
+    public static void setScanner(Scanner nuevoScanner) {
         if (nuevoScanner == null) {
             throw new IllegalArgumentException("El Scanner no puede ser nulo.");
         }
@@ -29,10 +26,10 @@ public final class ConsoleReader {
     }
 
     /**
-     * Restaura el lector por consola sobre {@code System.in} en UTF-8.
+     * Restaura el lector por consola sobre {@code System.in}.
      */
     public static void reiniciarScannerSistema() {
-        scanner = new Scanner(System.in, StandardCharsets.UTF_8);
+        scanner = new Scanner(System.in);
     }
 
     /**
@@ -60,9 +57,9 @@ public final class ConsoleReader {
      */
     public static int leerEntero(String mensaje) {
         while (true) {
-            Optional<Integer> valor = InputValidator.parsearEntero(leerLineaSegura(mensaje));
-            if (valor.isPresent()) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esEntero(entrada)) {
+                return InputValidator.convertirAEntero(entrada);
             }
             System.out.println("  [!] Error: Debe ingresar un número entero válido.");
         }
@@ -73,9 +70,12 @@ public final class ConsoleReader {
      */
     public static int leerEnteroPositivo(String mensaje) {
         while (true) {
-            Optional<Integer> valor = InputValidator.parsearEntero(leerLineaSegura(mensaje));
-            if (valor.isPresent() && InputValidator.esEnteroPositivo(valor.get())) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esEntero(entrada)) {
+                int valor = InputValidator.convertirAEntero(entrada);
+                if (InputValidator.esEnteroPositivo(valor)) {
+                    return valor;
+                }
             }
             System.out.println("  [!] Error: Debe ingresar un número entero positivo mayor que cero.");
         }
@@ -86,9 +86,12 @@ public final class ConsoleReader {
      */
     public static int leerEnteroNoNegativo(String mensaje) {
         while (true) {
-            Optional<Integer> valor = InputValidator.parsearEntero(leerLineaSegura(mensaje));
-            if (valor.isPresent() && InputValidator.esEnteroNoNegativo(valor.get())) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esEntero(entrada)) {
+                int valor = InputValidator.convertirAEntero(entrada);
+                if (InputValidator.esEnteroNoNegativo(valor)) {
+                    return valor;
+                }
             }
             System.out.println("  [!] Error: Debe ingresar un número entero mayor o igual a cero.");
         }
@@ -99,9 +102,12 @@ public final class ConsoleReader {
      */
     public static int leerEnteroEnRango(String mensaje, int min, int max) {
         while (true) {
-            Optional<Integer> valor = InputValidator.parsearEntero(leerLineaSegura(mensaje));
-            if (valor.isPresent() && InputValidator.esEnteroEnRango(valor.get(), min, max)) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esEntero(entrada)) {
+                int valor = InputValidator.convertirAEntero(entrada);
+                if (InputValidator.esEnteroEnRango(valor, min, max)) {
+                    return valor;
+                }
             }
             System.out.println("  [!] Error: Debe ingresar un número entero entre " + min + " y " + max + ".");
         }
@@ -112,9 +118,12 @@ public final class ConsoleReader {
      */
     public static BigDecimal leerBigDecimalPositivo(String mensaje) {
         while (true) {
-            Optional<BigDecimal> valor = InputValidator.parsearBigDecimal(leerLineaSegura(mensaje));
-            if (valor.isPresent() && InputValidator.esBigDecimalPositivo(valor.get())) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esBigDecimalValido(entrada)) {
+                BigDecimal valor = InputValidator.convertirABigDecimal(entrada);
+                if (InputValidator.esBigDecimalPositivo(valor)) {
+                    return valor;
+                }
             }
             System.out.println("  [!] Error: Debe ingresar un importe numérico válido mayor que 0.00 (ej. 45000.00).");
         }
@@ -125,9 +134,12 @@ public final class ConsoleReader {
      */
     public static BigDecimal leerBigDecimalNoNegativo(String mensaje) {
         while (true) {
-            Optional<BigDecimal> valor = InputValidator.parsearBigDecimal(leerLineaSegura(mensaje));
-            if (valor.isPresent() && InputValidator.esBigDecimalNoNegativo(valor.get())) {
-                return valor.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esBigDecimalValido(entrada)) {
+                BigDecimal valor = InputValidator.convertirABigDecimal(entrada);
+                if (InputValidator.esBigDecimalNoNegativo(valor)) {
+                    return valor;
+                }
             }
             System.out.println("  [!] Error: Debe ingresar un importe numérico válido mayor o igual a 0.00.");
         }
@@ -138,9 +150,9 @@ public final class ConsoleReader {
      */
     public static LocalDate leerFecha(String mensaje) {
         while (true) {
-            Optional<LocalDate> fecha = InputValidator.parsearFecha(leerLineaSegura(mensaje));
-            if (fecha.isPresent()) {
-                return fecha.get();
+            String entrada = leerLineaSegura(mensaje);
+            if (InputValidator.esFechaValida(entrada)) {
+                return InputValidator.convertirAFecha(entrada);
             }
             System.out.println("  [!] Error: Fecha inválida. Use el formato estricto yyyy-MM-dd (ej. 2026-05-20).");
         }
@@ -155,22 +167,21 @@ public final class ConsoleReader {
             if (entrada.isEmpty()) {
                 return null;
             }
-            Optional<LocalDate> fecha = InputValidator.parsearFecha(entrada);
-            if (fecha.isPresent()) {
-                return fecha.get();
+            if (InputValidator.esFechaValida(entrada)) {
+                return InputValidator.convertirAFecha(entrada);
             }
             System.out.println("  [!] Error: Fecha inválida. Use el formato estricto yyyy-MM-dd o deje vacío para omitir.");
         }
     }
 
     /**
-     * Solicita un correo electrónico obligatorio válido y lo retorna normalizado en minúsculas.
+     * Solicita un correo electrónico obligatorio válido y lo retorna en minúsculas.
      */
     public static String leerEmail(String mensaje) {
         while (true) {
             String entrada = InputValidator.normalizarTexto(leerLineaSegura(mensaje));
             if (InputValidator.esEmailValido(entrada)) {
-                return entrada.toLowerCase(Locale.ROOT);
+                return entrada.toLowerCase();
             }
             System.out.println("  [!] Error: Formato de correo electrónico inválido (ej. usuario@dominio.com).");
         }
@@ -186,7 +197,7 @@ public final class ConsoleReader {
                 return "";
             }
             if (InputValidator.esEmailValido(entrada)) {
-                return entrada.toLowerCase(Locale.ROOT);
+                return entrada.toLowerCase();
             }
             System.out.println("  [!] Error: Formato de correo electrónico inválido (ej. usuario@dominio.com) o deje vacío.");
         }
@@ -210,11 +221,17 @@ public final class ConsoleReader {
      */
     public static boolean leerConfirmacion(String mensaje) {
         String base = mensaje == null ? "Confirmar" : mensaje.trim();
-        String prompt = base.toUpperCase(Locale.ROOT).contains("(S/N)") ? base : base + " (S/N)";
+        String prompt;
+        if (base.toUpperCase().contains("(S/N)")) {
+            prompt = base;
+        } else {
+            prompt = base + " (S/N)";
+        }
+
         while (true) {
-            Optional<Boolean> confirmacion = InputValidator.parsearConfirmacion(leerLineaSegura(prompt));
-            if (confirmacion.isPresent()) {
-                return confirmacion.get();
+            String entrada = leerLineaSegura(prompt);
+            if (InputValidator.esConfirmacionValida(entrada)) {
+                return InputValidator.convertirAConfirmacion(entrada);
             }
             System.out.println("  [!] Error: Respuesta inválida. Ingrese 'S' para Sí o 'N' para No.");
         }

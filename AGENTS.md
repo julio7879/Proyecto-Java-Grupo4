@@ -27,6 +27,7 @@ Raíz del paquete Java: `com.carmotors.sgt`. Fuente de verdad funcional: `docs/v
    *El stock físico y operativo se calcula siempre desde `lotes`; nunca crear columna `cantidad_stock` en `repuestos`.*
 4. **Snapshots inmutables (RN-11, §2.7):** Al asignar servicios/repuestos congelar `nombre_servicio_snapshot`, `nombre_repuesto_snapshot` y `precio_unitario_venta`. Al facturar persistir `facturas`, exactamente un `factura_snapshot` (1:1) y `>= 1` `factura_detalles` (`MANO_OBRA` / `REPUESTO`) en la misma transacción; generar `output/factura_<numero>.txt` (UTF-8) después del `commit()`.
 5. **Excepciones, Logs y Seguridad (RNF-12, RNF-14, RNF-23):** Usar `ConfiguracionException` y las excepciones propias de dominio (`T1.2`). Prohibido `System.exit()` en `service`/`repository` y bloques `catch` vacíos. Nunca versionar `config.properties` ni contraseñas.
+6. **Nivel técnico de Java del curso (`docs/vault/03-Gestion/Alcance-Tecnico-Java.md`):** Escribir código Java básico–intermedio ceñido exclusivamente a las 20 sesiones vistas en clase (`if/else`, `while/for`, POJOs con `getters`/`setters`, `ArrayList`/`List`/`Map`/`Set`, `enum`, `try/catch/finally`, SOLID, los patrones del curso, `BufferedWriter`/`Properties`, JDBC clásico y Lambdas/`Stream API` directa). **Prohibido** usar `Optional` en validadores, `ResolverStyle.STRICT`, `Locale.ROOT`, reflexión, `CompletableFuture`, `record` o `sealed classes`.
 
 ---
 

@@ -13,6 +13,7 @@ Esta skill contiene las listas de verificación obligatorias que los agentes deb
 - [ ] Capas estrictas: `view` → `controller` → `service` → `repository` / `repository.impl` (NO existe paquete `dao`).
 - [ ] Todo SQL parametrizable en `repository.impl` usa `PreparedStatement`.
 - [ ] Excepciones propias (`ConfiguracionException` y jerarquía de dominio definida en `T1.2`), sin `System.exit()` ni `catch` vacíos.
+- [ ] Nivel de código Java acorde a las 20 sesiones del curso (`docs/vault/03-Gestion/Alcance-Tecnico-Java.md`): sin `Optional` rebuscado, sin `ResolverStyle.STRICT`, sin `Locale.ROOT`, sin `record` ni reflexión; usando POJOs clásicos, `try/catch`, colecciones estándar y `DateTimeFormatter.ofPattern("yyyy-MM-dd")`.
 
 ## 2. Validación de Transacciones JDBC (RN-04, RNF-08)
 - [ ] La operación compuesta (2 o más tablas) obtiene una única instancia de `Connection` desde `ConnectionFactory.getInstance().getConnection()`.
