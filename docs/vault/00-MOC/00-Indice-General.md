@@ -86,3 +86,4 @@ Guías de trabajo:
 - [[03-Gestion/Git-Flow|Convenciones de Git Flow & Commits]]
 - [[03-Gestion/Definition-of-Done|Definition of Done (DoD) & Checklist de Calidad]]
 - [[03-Gestion/Plan-Iteraciones|Plan de 9 Ramas Feature & Dependencias]]
+- [[03-Gestion/Plan-Sprints|Plan Oficial de Sprints & Reparto (S0–S8)]]
