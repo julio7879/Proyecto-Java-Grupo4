@@ -15,6 +15,7 @@
   - Creación de `AGENTS.md` en la raíz con arquitectura v1.3, reglas innegociables y matriz automática de modelos/modos (`Orchestrator (Argon)`, `Gemini 4 Hydrogen`, `Gemini 4 Argon`, `Gemini 3.8 Flash`, `/plan`, `/teamwork`).
   - Actualización de `.agents/README.md` y las 9 fichas `.agents/agent-*.md` con estrategia de modelo por módulo y alineación con el Documento Maestro v1.3.
   - Consolidación de `.agents/skills/carmotors-pr-reviewer/SKILL.md` en el repositorio y unificación de `carmotors-rules-validator` y `carmotors-qmd-consultant` (paquete `repository`, FEFO de 4 criterios, IVA fijo `0.19`, excepciones propias y protección de `README.md`).
+  - Integración visual de los **9 agentes especialistas** y **3 skills** en la bóveda Obsidian (`docs/vault/05-Agentes/` y `docs/vault/.obsidian/graph.json`) con enlaces bidireccionales hacia módulos, arquitectura, gestión e historias de usuario (`[[00-Mapa-Agentes-Skills]]`).
   - Creación de este historial `CHANGELOG.md` y limpieza temporal de `README.md` hasta `T8.4`.
 
 ---

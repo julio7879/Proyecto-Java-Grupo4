@@ -2,7 +2,9 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/facturacion`
-- **Agente especialista:** `@agent-facturacion`
+- **Agente especialista:** [[agent-facturacion|@agent-facturacion]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Patrones-Diseno]] · [[Transacciones-JDBC]] · [[Reglas-Negocio]] · [[Requerimientos-No-Funcionales]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Dependencias:** `feature/gestion-servicios`
 - **Requerimientos Funcionales:** RF-22, RF-23, RF-24
 - **Reglas de Negocio:** RN-09, RN-10, RN-11, RN-12

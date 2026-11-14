@@ -2,10 +2,12 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/reportes`
-- **Agente especialista:** `@agent-reportes`
-- **Dependencias:** `feature/gestion-servicios`, `feature/facturacion`
+- **Agente especialista:** [[agent-reportes|@agent-reportes]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Dependencias:** [[05-Servicios-Ordenes]] (`feature/gestion-servicios`), [[06-Facturacion]] (`feature/facturacion`)
 - **Requerimientos Funcionales:** RF-21, RF-25, RF-26, RF-27
-- **Reglas de Negocio:** RN-12, RN-15, Sección 4.2 y 4.3 del documento maestro
+- **Reglas de Negocio:** [[Reglas-Negocio]] (`RN-12`, `RN-15`), [[00-Documento-Maestro-v1.3]] (Sección 4.2 y 4.3)
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Requerimientos-No-Funcionales]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Historias de Usuario:** [[HU-13]]; [[HU-11]] (dominio de clientes, se construye en esta rama)
 - **Tecnología obligatoria:** Java 17 Stream API, Lambdas, `BigDecimal` con `RoundingMode.HALF_UP`.
 

@@ -2,10 +2,12 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/gestion-inventario`
-- **Agente especialista:** `@agent-inventario`
-- **Dependencias:** `feature/gestion-proveedores` (para validar proveedores activos en catálogo)
+- **Agente especialista:** [[agent-inventario|@agent-inventario]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Dependencias:** [[02-Proveedores]] (`feature/gestion-proveedores`, para validar proveedores activos en catálogo)
 - **Requerimientos Funcionales:** RF-01, RF-02, RF-03, RF-04, RF-05, RF-06, RF-07
-- **Reglas de Negocio:** RN-01, RN-02, RN-14, RN-17, RN-22
+- **Reglas de Negocio:** [[Reglas-Negocio]] (`RN-01`, `RN-02`, `RN-14`, `RN-17`, `RN-22`)
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Patrones-Diseno]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Historias de Usuario:** [[HU-01]], [[HU-02]], [[HU-03]]
 
 ---

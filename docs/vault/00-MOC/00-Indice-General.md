@@ -24,15 +24,15 @@ Bienvenido a la base de conocimiento y documentación técnica del **Sistema de 
 
 | Módulo | Documento | Alcance principal | Agente Especialista |
 |---|---|---|---|
-| **00. Configuración & Setup** | [[00-Setup]] | Maven, JDBC ConnectionFactory, .gitignore, config.properties | `@agent-setup` |
-| **01. Clientes y Vehículos** | [[01-Clientes-Vehiculos]] | RF-17 a RF-21 · HU-09 a HU-11 · Clientes, placas únicas, historial | `@agent-clientes` |
-| **02. Proveedores** | [[02-Proveedores]] | RF-28 a RF-32 · HU-14, HU-15 · Catálogo M:N, evaluaciones, ranking | `@agent-proveedores` |
-| **03. Inventario & Lotes** | [[03-Inventario]] | RF-01 a RF-07 · HU-01 a HU-03 · Lotes, stock derivado, alertas | `@agent-inventario` |
-| **04. Técnicos & Especialidades** | [[04-Tecnicos]] | RF-33, RF-34 · HU-16 · Carga de trabajo, sugerencia por especialidad | `@agent-tecnicos` |
-| **05. Servicios & Órdenes** | [[05-Servicios-Ordenes]] | RF-08 a RF-16, RF-35 · HU-04 a HU-08 · Cabecera-detalle, FEFO, estados | `@agent-servicios` |
-| **06. Facturación** | [[06-Facturacion]] | RF-22 a RF-24 · HU-12 · Snapshots inmutables, TXT UTF-8, IVA 19% | `@agent-facturacion` |
-| **07. Reportes Gerenciales** | [[07-Reportes]] | RF-25 a RF-27 · HU-13 · Streams, productividad, servicios, consumo | `@agent-reportes` |
-| **08. Base de Datos** | [[08-Base-Datos]] | Modelo relacional, schema.sql, data.sql (dataset recomendado) | `@agent-database` |
+| **00. Configuración & Setup** | [[00-Setup]] | Maven, JDBC ConnectionFactory, .gitignore, config.properties | [[agent-setup]] |
+| **01. Clientes y Vehículos** | [[01-Clientes-Vehiculos]] | RF-17 a RF-21 · HU-09 a HU-11 · Clientes, placas únicas, historial | [[agent-clientes]] |
+| **02. Proveedores** | [[02-Proveedores]] | RF-28 a RF-32 · HU-14, HU-15 · Catálogo M:N, evaluaciones, ranking | [[agent-proveedores]] |
+| **03. Inventario & Lotes** | [[03-Inventario]] | RF-01 a RF-07 · HU-01 a HU-03 · Lotes, stock derivado, alertas | [[agent-inventario]] |
+| **04. Técnicos & Especialidades** | [[04-Tecnicos]] | RF-33, RF-34 · HU-16 · Carga de trabajo, sugerencia por especialidad | [[agent-tecnicos]] |
+| **05. Servicios & Órdenes** | [[05-Servicios-Ordenes]] | RF-08 a RF-16, RF-35 · HU-04 a HU-08 · Cabecera-detalle, FEFO, estados | [[agent-servicios]] |
+| **06. Facturación** | [[06-Facturacion]] | RF-22 a RF-24 · HU-12 · Snapshots inmutables, TXT UTF-8, IVA 19% | [[agent-facturacion]] |
+| **07. Reportes Gerenciales** | [[07-Reportes]] | RF-21, RF-25 a RF-27 · HU-13, HU-11 · Streams, productividad, servicios, consumo | [[agent-reportes]] |
+| **08. Base de Datos** | [[08-Base-Datos]] | Modelo relacional, schema.sql, data.sql (dataset recomendado) | [[agent-database]] |
 
 ---
 
@@ -87,3 +87,7 @@ Guías de trabajo:
 - [[03-Gestion/Definition-of-Done|Definition of Done (DoD) & Checklist de Calidad]]
 - [[03-Gestion/Plan-Iteraciones|Plan de 9 Ramas Feature & Dependencias]]
 - [[03-Gestion/Plan-Sprints|Plan Oficial de Sprints & Reparto (S0–S8)]]
+
+Sistema multi-agente y skills:
+- [[05-Agentes/00-Mapa-Agentes-Skills|Mapa Visual de Agentes Especialistas y Skills]]
+- [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]

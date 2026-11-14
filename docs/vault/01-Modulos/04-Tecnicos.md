@@ -2,12 +2,14 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/gestion-tecnicos`
-- **Agente especialista:** `@agent-tecnicos`
-- **Dependencias:** `feature/project-setup`
+- **Agente especialista:** [[agent-tecnicos|@agent-tecnicos]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Dependencias:** [[00-Setup]] (`feature/project-setup`)
 - **Requerimientos Funcionales:** RF-33, RF-34
-- **Reglas de Negocio:** RN-07, RN-19, RN-20, RN-21
+- **Reglas de Negocio:** [[Reglas-Negocio]] (`RN-07`, `RN-19`, `RN-20`, `RN-21`)
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Principios-SOLID]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Historias de Usuario:** [[HU-16]]
-- **Patrón de Diseño aplicado:** **Chain of Responsibility** (cadena de sugerencia de técnicos)
+- **Patrón de Diseño aplicado:** [[Patrones-Diseno|Chain of Responsibility]] (cadena de sugerencia de técnicos)
 
 ---
 

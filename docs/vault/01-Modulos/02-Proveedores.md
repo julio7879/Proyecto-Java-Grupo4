@@ -2,10 +2,12 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/gestion-proveedores`
-- **Agente especialista:** `@agent-proveedores`
-- **Dependencias:** `feature/project-setup`
+- **Agente especialista:** [[agent-proveedores|@agent-proveedores]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Dependencias:** [[00-Setup]] (`feature/project-setup`)
 - **Requerimientos Funcionales:** RF-28, RF-29, RF-30, RF-31, RF-32
-- **Reglas de Negocio:** RN-16, RN-17, RN-18
+- **Reglas de Negocio:** [[Reglas-Negocio]] (`RN-16`, `RN-17`, `RN-18`)
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Transacciones-JDBC]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Historias de Usuario:** [[HU-14]], [[HU-15]]
 
 ---

@@ -60,3 +60,10 @@ Todos los commits deben seguir el estándar:
 - `fix: prevent reserving expired lots when creating lines`
 - `docs: update relational model diagram in vault`
 - `chore: configure connection factory and properties example`
+
+
+---
+
+## 🔗 Integración con Agentes, Skills y Changelog
+- Revisa los flujos de ramas y matriz de modelos en [[00-Mapa-Agentes-Skills]] y [[Plan-Sprints]].
+- Toda auditoría previa al merge hacia `develop` utiliza [[carmotors-pr-reviewer]] junto con [[carmotors-rules-validator]] y registra los cambios aprobados en `CHANGELOG.md`.

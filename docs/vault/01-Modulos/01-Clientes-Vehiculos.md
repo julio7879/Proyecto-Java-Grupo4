@@ -2,10 +2,12 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/gestion-clientes`
-- **Agente especialista:** `@agent-clientes`
-- **Dependencias:** `feature/project-setup`
+- **Agente especialista:** [[agent-clientes|@agent-clientes]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Dependencias:** [[00-Setup]] (`feature/project-setup`)
 - **Requerimientos Funcionales:** RF-17, RF-18, RF-19, RF-20, RF-21
-- **Reglas de Negocio:** RN-13, RN-15, RN-17
+- **Reglas de Negocio:** [[Reglas-Negocio]] (`RN-13`, `RN-15`, `RN-17`)
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Requerimientos-No-Funcionales]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Historias de Usuario:** [[HU-09]], [[HU-10]], [[HU-11]]
 
 ---

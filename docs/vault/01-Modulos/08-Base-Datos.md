@@ -2,7 +2,9 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/documentacion` (y transversal durante todo el desarrollo)
-- **Agente especialista:** `@agent-database`
+- **Agente especialista:** [[agent-database|@agent-database]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Transacciones-JDBC]] · [[Reglas-Negocio]] · [[Requerimientos-No-Funcionales]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Archivos fuente:** `database/schema.sql` y `database/data.sql`
 - **Requerimientos no funcionales:** RNF-01, RNF-06, RNF-07, RNF-08, RNF-21, RNF-25
 - **Modelo de referencia:** 20 tablas descritas en [[Modelo-Relacional]] y [[Diagrama-Clases]] (v1.3, facturación en cabecera + snapshot + conceptos)

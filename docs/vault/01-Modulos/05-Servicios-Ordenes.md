@@ -2,7 +2,9 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/gestion-servicios`
-- **Agente especialista:** `@agent-servicios`
+- **Agente especialista:** [[agent-servicios|@agent-servicios]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Arquitectura y Planificación:** [[Modelo-Relacional]] · [[Diagrama-Clases]] · [[Patrones-Diseno]] · [[Transacciones-JDBC]] · [[Reglas-Negocio]] · [[Requerimientos-No-Funcionales]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Dependencias:** `feature/gestion-clientes`, `feature/gestion-inventario`, `feature/gestion-tecnicos`
 - **Requerimientos Funcionales:** RF-08, RF-09, RF-10, RF-11, RF-12, RF-13, RF-14, RF-15, RF-16, RF-35
 - **Reglas de Negocio:** RN-01 a RN-08, RN-11, RN-12, RN-18, RN-22

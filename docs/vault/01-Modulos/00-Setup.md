@@ -2,7 +2,9 @@
 
 ## 1. Identificación
 - **Rama asociada:** `feature/project-setup`
-- **Agente especialista:** `@agent-setup`
+- **Agente especialista:** [[agent-setup|@agent-setup]]
+- **Skills obligatorias:** [[carmotors-qmd-consultant]] · [[carmotors-rules-validator]] · [[carmotors-pr-reviewer]]
+- **Arquitectura y Planificación:** [[Patrones-Diseno]] · [[Transacciones-JDBC]] · [[Requerimientos-No-Funcionales]] · [[Principios-SOLID]] · [[Plan-Sprints]] · [[Plan-Iteraciones]]
 - **Dependencias:** Ninguna (base del proyecto)
 - **Requerimientos no funcionales clave:** RNF-01, RNF-02, RNF-07, RNF-14, RNF-17, RNF-22, RNF-23
 

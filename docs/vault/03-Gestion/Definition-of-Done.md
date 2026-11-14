@@ -15,3 +15,11 @@ Para que una Historia de Usuario o Tarea se considere oficialmente **DONE** y se
 7. [ ] **Logs:** Los errores técnicos se registran en logs (`logs/sgt.log`) con contexto suficiente, sin exponer contraseñas.
 8. [ ] **Compilación limpia:** Compila con `mvn clean compile` sin errores ni warnings críticos.
 9. [ ] **Commits formales:** Redactados en inglés siguiendo Conventional Commits (`feat:`, `fix:`, etc.).
+
+
+---
+
+## 🔗 Auditoría Automatizada y Agentes
+- Antes de abrir o aprobar un PR en `develop`, valida la implementación contra [[Reglas-Negocio]], [[Transacciones-JDBC]] y [[Patrones-Diseno]] usando [[carmotors-rules-validator]] y [[carmotors-pr-reviewer]].
+- Consulta los criterios `Dado/Cuando/Entonces` y tareas `Tx.y` en [[Plan-Sprints]] mediante [[carmotors-qmd-consultant]].
+- Mapa completo de responsables por módulo: [[00-Mapa-Agentes-Skills]].
