@@ -6,9 +6,20 @@
 
 ---
 
-## [En curso] — Configuración de entorno, agentes y trazabilidad (`develop`)
+## [En curso] — Sprint 1: Piezas comunes (`develop`)
 
-### Pendiente de integración (`chore/agent-workspace-setup` → `develop`, Issue `#64`)
+### Pendiente de integración — `[S1 - T1.1] Utilidades de lectura y validación por consola` (`feature/project-setup` → `develop`, Issue `#14`)
+- **Autor:** `@julio7879`
+- **Cambios incluidos:**
+  - Creación de `InputValidator` (`com.carmotors.sgt.util`) para validación y normalización pura de textos, enteros, rangos, importes `BigDecimal` (escala 2, `RoundingMode.HALF_UP`, `RNF-15`), fechas estrictas `yyyy-MM-dd` (`ResolverStyle.STRICT`, `RNF-13`), emails, placas (`RN-13`) y confirmaciones `S/N` (`RNF-24`).
+  - Creación de `ConsoleReader` (`com.carmotors.sgt.util`) con métodos estáticos seguros en una sola llamada y reintento automático sin abortar la aplicación (`RNF-12`, `RNF-13`, `RNF-24`).
+  - Creación de pruebas unitarias JUnit 5 en `ConsoleReaderTest`.
+
+---
+
+## [2026-11-14] — Configuración multi-agente, plan de sprints y grafo Obsidian (`develop`)
+
+### PR #65 — `chore: configure AGENTS.md, sprint plan, unified skills v1.3 and Obsidian graph` (`chore/agent-workspace-setup` → `develop`, commit `5b74cae`, cierra `#64`)
 - **Autor:** `@julio7879`
 - **Cambios incluidos:**
   - Incrustado del plan oficial de sprints en `docs/vault/03-Gestion/Plan-Sprints.md` (con `T0.10` marcada como completada) y enlace en `docs/vault/00-MOC/00-Indice-General.md`.
