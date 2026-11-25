@@ -87,7 +87,7 @@ public class OrdenServicioView implements SubmenuVista {
             System.out.println(" 10. Ver detalle de una orden");
             System.out.println("  -- Transiciones de Estado --");
             System.out.println(" 11. Pasar orden a En Proceso");
-            System.out.println(" 12. Completar orden");
+            System.out.println(" 12. Completar Orden de Servicio");
             System.out.println(" 13. Cancelar orden");
             System.out.println(" 14. Entregar orden");
             System.out.println("  0. Volver al menú anterior");

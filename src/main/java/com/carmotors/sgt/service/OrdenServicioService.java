@@ -1,5 +1,7 @@
 package com.carmotors.sgt.service;
 
+import com.carmotors.sgt.service.observer.Observador;
+import com.carmotors.sgt.service.observer.Sujeto;
 import com.carmotors.sgt.config.ConnectionFactory;
 import com.carmotors.sgt.exception.CarMotorsException;
 import com.carmotors.sgt.exception.DatoDuplicadoException;
@@ -9,6 +11,7 @@ import com.carmotors.sgt.exception.ValidacionException;
 import com.carmotors.sgt.model.Cliente;
 import com.carmotors.sgt.model.ConsultaOrdenServicio;
 import com.carmotors.sgt.model.ConsumoRepuesto;
+import com.carmotors.sgt.model.EventoServicioCompletado;
 import com.carmotors.sgt.model.FiltroOrdenServicio;
 import com.carmotors.sgt.model.ResumenOrdenServicio;
 import com.carmotors.sgt.model.DetalleRepuesto;
@@ -73,7 +76,7 @@ import java.util.stream.Collectors;
  * Reglas de negocio para crear órdenes, editar sus líneas, reservar repuestos en ellas
  * y completarlas descontando el inventario (RF-08, RF-10, RF-13, RF-35, RN-01 a RN-04, RN-08, RN-11).
  */
-public class OrdenServicioService {
+public class OrdenServicioService implements Sujeto {
 
     private static final Logger LOGGER = Logger.getLogger(OrdenServicioService.class.getName());
     private static final int MAX_LONGITUD_DESCRIPCION = 255;
@@ -94,6 +97,7 @@ public class OrdenServicioService {
     private final ConsultaOrdenServicioDAO consultaOrdenServicioDAO;
     private final LoteDAO loteDAO;
     private final ConsumoLotesFefo consumoLotesFefo = new ConsumoLotesFefo();
+    private final List<Observador> observadores = new ArrayList<>();
 
     /**
      * Constructor de producción: usa DAOs JDBC y transacción con una única {@link Connection}.
@@ -1383,7 +1387,70 @@ public class OrdenServicioService {
             resultado = completarOrdenEnTransaccion(ordenId, fechaCompletado);
         }
 
+        notificarOrdenCompletadaSiHayObservadores(resultado.getOrden());
         return resultado;
+    }
+
+    @Override
+    public void registrarObservador(Observador observador) {
+        if (observador == null) {
+            throw new ValidacionException("El observador a registrar no puede ser nulo.");
+        }
+        if (!observadores.contains(observador)) {
+            observadores.add(observador);
+        }
+    }
+
+    @Override
+    public void removerObservador(Observador observador) {
+        if (observador == null) {
+            throw new ValidacionException("El observador a remover no puede ser nulo.");
+        }
+        observadores.remove(observador);
+    }
+
+    @Override
+    public void notificarObservadores(EventoServicioCompletado evento) {
+        if (evento == null) {
+            throw new ValidacionException("El evento de servicio completado no puede ser nulo.");
+        }
+        for (Observador observador : new ArrayList<>(observadores)) {
+            try {
+                observador.actualizar(evento);
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.WARNING,
+                        "No se pudo notificar al observador " + observador.getClass().getSimpleName()
+                                + " para la orden #" + evento.getOrdenId() + ": " + e.getMessage(),
+                        e);
+            }
+        }
+    }
+
+    private void notificarOrdenCompletadaSiHayObservadores(OrdenServicio orden) {
+        if (orden == null || observadores.isEmpty()) {
+            return;
+        }
+        try {
+            Vehiculo vehiculo = vehiculoDAO.buscarPorId(orden.getVehiculoId());
+            if (vehiculo == null) {
+                LOGGER.warning("No se encontró el vehículo " + orden.getVehiculoId()
+                        + " para notificar la orden completada #" + orden.getId() + ".");
+                return;
+            }
+            Cliente cliente = clienteDAO.buscarPorId(vehiculo.getClienteId());
+            if (cliente == null) {
+                LOGGER.warning("No se encontró el cliente " + vehiculo.getClienteId()
+                        + " para notificar la orden completada #" + orden.getId() + ".");
+                return;
+            }
+            EventoServicioCompletado evento = new EventoServicioCompletado(orden, vehiculo, cliente);
+            notificarObservadores(evento);
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING,
+                    "No se pudo construir la notificación de la orden completada #"
+                            + orden.getId() + ": " + e.getMessage(),
+                    e);
+        }
     }
 
     private ResultadoCompletarOrden completarOrdenEnTransaccion(int ordenId, LocalDateTime fechaCompletado) {

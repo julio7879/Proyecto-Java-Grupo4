@@ -1,5 +1,7 @@
 package com.carmotors.sgt;
 
+import com.carmotors.sgt.service.observer.ObservadorLogServicio;
+import com.carmotors.sgt.service.observer.ObservadorNotificacionCliente;
 import com.carmotors.sgt.controller.ClienteController;
 import com.carmotors.sgt.controller.EvaluacionProveedorController;
 import com.carmotors.sgt.controller.FacturaController;
@@ -141,6 +143,8 @@ public class Main {
 
             OrdenServicioService ordenServicioService = new OrdenServicioService(vehiculoDAO, clienteDAO, servicioTipoDAO,
                     repuestoDAO, new DetalleRepuestoDAOImpl(), inventarioService);
+            ordenServicioService.registrarObservador(new ObservadorLogServicio());
+            ordenServicioService.registrarObservador(new ObservadorNotificacionCliente());
             TallerFacade tallerFacade = new TallerFacade(ordenServicioService, inventarioService, tecnicoService);
             OrdenServicioController ordenServicioController = new OrdenServicioController(ordenServicioService, tallerFacade);
             OrdenServicioView ordenServicioView =
