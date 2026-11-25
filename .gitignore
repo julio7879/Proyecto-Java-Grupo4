@@ -21,8 +21,9 @@ logs/
 config.properties
 src/main/resources/config.properties
 
-# Facturas TXT generadas en ejecución
+# Facturas TXT y notificaciones generadas en ejecución
 output/
+notificaciones_clientes.txt
 
 # Sistema operativo
 .DS_Store
